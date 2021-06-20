@@ -12,27 +12,6 @@
 #include "TaskControl.hpp"
 #include "Util.hpp"
 
-// Control loop for tuning PID.
-static auto tunePID(TaskControl &taskControl, Timer &timer) -> void {
-    // Wait a bit.
-    timer.time(0.4);
-    while (timer.expired() == false) {
-    }
-    for (int i = 0; i < 6; i++) {
-        taskControl.kinematics.setGain({10, 0, 0}, {10, 0, 0});
-        timer.time(0.1);
-        while (timer.expired() == false) {
-        }
-        auto pose = taskControl.localisation.getInitialPositions();
-        taskControl.kinematics.setPoint(
-            {pose.first + Kinematics::idealSetPosition2NextCell, 0.6 * Kinematics::maxMotorSpeed},
-            {pose.second + Kinematics::idealSetPosition2NextCell, 0.6 * Kinematics::maxMotorSpeed});
-        timer.time(4);
-        while (timer.expired() == false) {
-        }
-    }
-}
-
 // Perform simulation steps until Webots is stopping the controller.
 static auto simulationSteps(webots::Robot &robot) -> void {
     const auto timeStep = robot.getBasicTimeStep();
