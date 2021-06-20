@@ -39,7 +39,8 @@ class Kinematics {
                          {initialPosition.second - idealSetPosition2Turn, 0.4 * maxMotorSpeed});
                 break;
             case 'F':
-                setGain({9.58, 0.002, 0.82}, {9.58, 0.002, 0.82});
+                // setGain({1, 0, 0}, {1, 0, 0});
+                // setGain({9.58, 0.003, 0.82}, {9.58, 0.002, 0.82});
                 timer_.time(0.1);
                 while (timer_.expired() == false) {
                 }
