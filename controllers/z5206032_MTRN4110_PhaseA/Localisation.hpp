@@ -11,7 +11,7 @@ class Localisation {
     Localisation(webots::Robot &robot, std::pair<int, int> position, char heading)
         : leftPositionSensor_(robot.getPositionSensor("left wheel sensor")),
           rightPositionSensor_(robot.getPositionSensor("right wheel sensor")),
-          inertialUnit_(robot.getInertialUnit("inertial unit")),
+          //   inertialUnit_(robot.getInertialUnit("inertial unit")),
           position_(position) {
         // Initialise position sensors.
         const auto timeStep = robot.getBasicTimeStep();
@@ -19,7 +19,7 @@ class Localisation {
         rightPositionSensor_->enable(timeStep);
 
         // Initialise inertial unit.
-        inertialUnit_->enable(timeStep);
+        // inertialUnit_->enable(timeStep);
 
         // Get heading index.
         switch (heading) {
@@ -52,7 +52,7 @@ class Localisation {
         return {leftPositionSensor_->getValue(), rightPositionSensor_->getValue()};
     }
 
-    const auto getYaw() const -> double { return inertialUnit_->getRollPitchYaw()[2]; }
+    // const auto getYaw() const -> double { return inertialUnit_->getRollPitchYaw()[2]; }
 
    private:
     // Updates the heading using information given by motion plan sequence.
@@ -108,7 +108,7 @@ class Localisation {
    private:
     std::unique_ptr<webots::PositionSensor> leftPositionSensor_;
     std::unique_ptr<webots::PositionSensor> rightPositionSensor_;
-    std::unique_ptr<webots::InertialUnit> inertialUnit_;
+    // std::unique_ptr<webots::InertialUnit> inertialUnit_;
     std::pair<int, int> position_;  // row, column
     int headingIndex_;
 };

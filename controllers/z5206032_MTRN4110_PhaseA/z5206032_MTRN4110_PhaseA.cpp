@@ -64,7 +64,7 @@ static auto realtimeSteps(TaskControl &taskControl, Timer &timer) -> void {
 
             // Block other actions.
             taskControl.acquireLock();
-            timer.time(5);
+            timer.time(3);
         }
 
         // Wait for action to finish.
@@ -96,7 +96,7 @@ auto main(int argc, char **argv) -> int {
 
     // Spin threads.
     auto t1 = std::thread(simulationSteps, std::ref(robot));
-    auto t2 = std::thread(tunePID, std::ref(taskControl), std::ref(timer));
+    auto t2 = std::thread(realtimeSteps, std::ref(taskControl), std::ref(timer));
 
     // Wait for threads to finish.
     t1.join();

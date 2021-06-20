@@ -4,7 +4,7 @@ WorldInfo {
 }
 Viewpoint {
   orientation 1 0 0 4.71238898038469
-  position -5.744097159438401e-17 3.943920596371543 4.070476773435639e-16
+  position -5.744097159438401e-17 4.730352242619739 2.62587298717184e-16
 }
 TexturedBackground {
 }
@@ -476,10 +476,6 @@ DEF z5206032 E-puck {
     Lidar {
       fieldOfView 6.28
       numberOfLayers 1
-    }
-  ]
-  groundSensorsSlot [
-    InertialUnit {
     }
   ]
 }

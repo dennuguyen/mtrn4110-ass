@@ -1,2 +1,5 @@
 Step, Row, Column, Heading, Left Wall, Front Wall, Right Wall, 
-000, 0, 0, S, N, N, N, 
+000, 0, 0, S, N, N, Y, 
+001, 1, 0, S, N, Y, Y, 
+002, 1, 0, E, N, N, Y, 
+003, 1, 1, E, Y, N, N, 
