@@ -10,7 +10,7 @@
 class WallPerception {
    public:
     WallPerception(webots::Robot &robot) : lidar_(robot.getLidar("lidar")) {
-        const auto timeStep = 64;  // robot.getBasicTimeStep();
+        const auto timeStep = robot.getBasicTimeStep();
         lidar_->enable(timeStep);
         lidar_->enablePointCloud();
 
@@ -20,11 +20,11 @@ class WallPerception {
         }
     }
 
-    const auto getLeftWall() -> char { return walls_[left_]; }
+    const auto getLeftWall() const -> char { return walls_[left_]; }
 
-    const auto getFrontWall() -> char { return walls_[front_]; }
+    const auto getFrontWall() const -> char { return walls_[front_]; }
 
-    const auto getRightWall() -> char { return walls_[right_]; }
+    const auto getRightWall() const -> char { return walls_[right_]; }
 
     auto tick() -> int {
         const auto pointCloud = lidar_->getPointCloud();
@@ -46,7 +46,7 @@ class WallPerception {
         auto wallDetected = std::vector<bool>();
         wallDetected.reserve(numberPoints);
         for (const auto &point : pointDistances) {
-            wallDetected.push_back(point < wallDistance_);
+            wallDetected.push_back(point < wallDistance);
         }
 
         // Sectorise.
@@ -74,9 +74,11 @@ class WallPerception {
         return 0;
     }
 
+   public:
+    static constexpr auto wallDistance = 0.085;  // Distance from centre of cell to wall.
+
    private:
-    static constexpr auto wallDistance_ = 0.085;  // Distance from centre of cell to wall.
-    std::unique_ptr<webots::Lidar> lidar_;        // 360 lidar.
+    std::unique_ptr<webots::Lidar> lidar_;  // 360 lidar.
     std::array<char, 3> walls_;
     static constexpr auto left_ = 0;
     static constexpr auto front_ = 1;

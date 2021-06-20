@@ -34,9 +34,9 @@ class TaskControl {
 
     auto releaseLock() -> void { bigLock_ = false; }
 
-    const auto isLockBusy() -> bool { return bigLock_; }
+    const auto isLockBusy() const -> bool { return bigLock_; }
 
-    auto displayMessage() -> void {
+    auto displayMessage() const -> void {
         auto ss = std::stringstream();
         const auto &msg = getMessage();
         for (const auto &cell : msg) {
@@ -48,7 +48,7 @@ class TaskControl {
         printConsole(ss.str());
     }
 
-    auto initcsv() -> void {
+    auto initcsv() const -> void {
         auto csv = std::ofstream(csvPath_, std::ios::trunc);
         const auto &msg = getMessage();
 
@@ -60,7 +60,7 @@ class TaskControl {
         csv.close();
     }
 
-    auto writeMessage2csv() -> void {
+    auto writeMessage2csv() const -> void {
         auto csv = std::ofstream(csvPath_, std::ios::app);
         const auto &msg = getMessage();
 
@@ -73,7 +73,7 @@ class TaskControl {
     }
 
    private:
-    auto getMessage() -> std::vector<std::pair<std::string, std::string>> {
+    const auto getMessage() const -> std::vector<std::pair<std::string, std::string>> {
         auto msg = std::vector<std::pair<std::string, std::string>>();
         auto ss = std::stringstream();
         ss << std::setw(3) << std::setfill('0') << step_;

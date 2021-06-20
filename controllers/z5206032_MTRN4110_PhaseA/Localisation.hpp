@@ -14,7 +14,7 @@ class Localisation {
           inertialUnit_(robot.getInertialUnit("inertial unit")),
           position_(position) {
         // Initialise position sensors.
-        const auto timeStep = 64;  // robot.getBasicTimeStep();
+        const auto timeStep = robot.getBasicTimeStep();
         leftPositionSensor_->enable(timeStep);
         rightPositionSensor_->enable(timeStep);
 
@@ -44,7 +44,7 @@ class Localisation {
 
     const auto getColumn() const -> int { return position_.second; }
 
-    const auto getHeading() const -> char { return cardinalPoints_[headingIndex_]; }
+    const auto getHeading() const -> char { return cardinalPoints[headingIndex_]; }
 
     auto tick(char instruction) -> void { updateHeadingByPlan(instruction); }
 
@@ -102,11 +102,13 @@ class Localisation {
 
     auto updateHeadingByIMU() -> void {}
 
+   public:
+    const std::array<char, 4> cardinalPoints = {'N', 'E', 'S', 'W'};
+
    private:
     std::unique_ptr<webots::PositionSensor> leftPositionSensor_;
     std::unique_ptr<webots::PositionSensor> rightPositionSensor_;
     std::unique_ptr<webots::InertialUnit> inertialUnit_;
-    const std::array<char, 4> cardinalPoints_ = {'N', 'E', 'S', 'W'};
     std::pair<int, int> position_;  // row, column
     int headingIndex_;
 };

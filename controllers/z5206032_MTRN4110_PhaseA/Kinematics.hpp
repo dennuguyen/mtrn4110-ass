@@ -3,61 +3,79 @@
 
 #include <cmath>
 #include <memory>
+#include <tuple>
 #include <webots/Motor.hpp>
 #include <webots/Robot.hpp>
+
+#include "Util.hpp"
 
 class Kinematics {
    public:
     Kinematics(webots::Robot &robot)
-        : leftMotor_(robot.getMotor("left wheel motor")),
+        : timer_(robot),
+          leftMotor_(robot.getMotor("left wheel motor")),
           rightMotor_(robot.getMotor("right wheel motor")) {
-        // Initialise left motor.
-        leftMotor_->setPosition(0.0);
-        leftMotor_->setVelocity(0.0);
-        leftMotor_->setControlPID(10, 0, 0);
-
-        // Initialise right motor.
-        rightMotor_->setPosition(0.0);
-        rightMotor_->setVelocity(0.0);
-        rightMotor_->setControlPID(10, 0, 0);
+        // Initialise motors.
+        setGain({0, 0, 0}, {0, 0, 0});
+        setPoint({0, 0}, {0, 0});
     }
 
     auto tick(char instruction, std::pair<double, double> initialPosition) -> void {
         switch (instruction) {
             case 'L':
-                odometry(initialPosition.first - idealSetPosition2Turn_,
-                         initialPosition.second + idealSetPosition2Turn_, 2.2, 2.2);
+                setGain({9.9, 0.012, 0.82}, {10.1, 0.002, 0.82});
+                timer_.time(0.1);
+                while (timer_.expired() == false) {
+                }
+                setPoint({initialPosition.first - idealSetPosition2Turn, 0.4 * maxMotorSpeed},
+                         {initialPosition.second + idealSetPosition2Turn, 0.4 * maxMotorSpeed});
                 break;
             case 'R':
-                odometry(initialPosition.first + idealSetPosition2Turn_,
-                         initialPosition.second - idealSetPosition2Turn_, 2.2, 2.2);
+                setGain({9.9, 0.012, 0.82}, {10.1, 0.002, 0.82});
+                timer_.time(0.1);
+                while (timer_.expired() == false) {
+                }
+                setPoint({initialPosition.first + idealSetPosition2Turn, 0.4 * maxMotorSpeed},
+                         {initialPosition.second - idealSetPosition2Turn, 0.4 * maxMotorSpeed});
                 break;
             case 'F':
-                odometry(initialPosition.first + idealSetPosition2NextCell_,
-                         initialPosition.second + idealSetPosition2NextCell_, 2.2, 2.2);
+                setGain({9.58, 0.012, 0.82}, {9.58, 0.002, 0.82});
+                timer_.time(0.1);
+                while (timer_.expired() == false) {
+                }
+                setPoint({initialPosition.first + idealSetPosition2NextCell, 0.6 * maxMotorSpeed},
+                         {initialPosition.second + idealSetPosition2NextCell, 0.6 * maxMotorSpeed});
                 break;
             default:
                 std::cerr << "WARNING: Invalid instruction in motion sequence." << std::endl;
         }
     }
 
-   private:
-    auto odometry(double leftPose, double rightPose, double leftVel, double rightVel) -> void {
-        leftMotor_->setPosition(leftPose);
-        rightMotor_->setPosition(rightPose);
-        leftMotor_->setVelocity(leftVel);
-        rightMotor_->setVelocity(rightVel);
+    auto setGain(std::tuple<double, double, double> left, std::tuple<double, double, double> right)
+        -> void {
+        leftMotor_->setControlPID(std::get<0>(left), std::get<1>(left), std::get<2>(left));
+        rightMotor_->setControlPID(std::get<0>(right), std::get<1>(right), std::get<2>(right));
     }
 
+    auto setPoint(std::tuple<double, double> left, std::tuple<double, double> right) -> void {
+        leftMotor_->setPosition(std::get<0>(left));
+        leftMotor_->setVelocity(std::get<1>(left));
+        rightMotor_->setPosition(std::get<0>(right));
+        rightMotor_->setVelocity(std::get<1>(right));
+    }
+
+   public:
+    static constexpr auto maxMotorSpeed = 6.28;
+    static constexpr auto wheelRadius = 0.02;
+    static constexpr auto axleLength = 0.0566;
+    static constexpr auto distanceBetweenCells = 0.165;
+    static constexpr auto idealSetPosition2NextCell = distanceBetweenCells / wheelRadius;
+    static constexpr auto idealSetPosition2Turn = axleLength * M_PI / 2.0 / wheelRadius / 2.0;
+
    private:
+    Timer timer_;
     std::unique_ptr<webots::Motor> leftMotor_;
     std::unique_ptr<webots::Motor> rightMotor_;
-    static constexpr auto maxMotorSpeed_ = 6.28;
-    static constexpr auto wheelRadius_ = 0.02;
-    static constexpr auto axleLength_ = 0.0566;
-    static constexpr auto distanceBetweenCells_ = 0.165;
-    static constexpr auto idealSetPosition2NextCell_ = distanceBetweenCells_ / wheelRadius_;
-    static constexpr auto idealSetPosition2Turn_ = axleLength_ * M_PI / 2.0 / wheelRadius_ / 2.0;
 };
 
 #endif  // KINEMATICS_HPP_

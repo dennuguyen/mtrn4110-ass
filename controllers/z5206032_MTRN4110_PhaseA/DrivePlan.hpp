@@ -31,7 +31,7 @@ class DrivePlan {
 
     ~DrivePlan() { printConsole("Motion plan executed!"); }
 
-    const auto getMotionPlan() -> std::string { return motionPlan_; }
+    const auto getMotionPlan() const -> std::string { return motionPlan_; }
 
     const auto nextSequence() -> char {
         if (motionSequence_.empty() == true) {
@@ -43,14 +43,14 @@ class DrivePlan {
         return sequence;
     }
 
-    const auto getInitialLocalisation() -> std::pair<int, int> {
+    const auto getInitialLocalisation() const -> std::pair<int, int> {
         return {static_cast<int>(motionPlan_[0]),   // row
                 static_cast<int>(motionPlan_[1])};  // column
     }
 
-    const auto getInitialHeading() -> char { return motionPlan_[2]; }
+    const auto getInitialHeading() const -> char { return motionPlan_[2]; }
 
-    auto displayMotionSequence() -> void {
+    auto displayMotionSequence() const -> void {
         auto ss = std::stringstream();
         for (auto &sequence : motionSequence_) {
             ss << sequence;
