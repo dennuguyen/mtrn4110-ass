@@ -5,30 +5,30 @@
 
 class Localisation {
    public:
-    Localisation(std::pair<int, int> position, char heading) : position(position) {
+    Localisation(std::pair<int, int> position, char heading) : position_(position) {
         switch (heading) {
             case 'N':
-                headingIndex = 0;
+                headingIndex_ = 0;
                 break;
             case 'E':
-                headingIndex = 1;
+                headingIndex_ = 1;
                 break;
             case 'S':
-                headingIndex = 2;
+                headingIndex_ = 2;
                 break;
             case 'W':
-                headingIndex = 3;
+                headingIndex_ = 3;
                 break;
             default:
                 std::cerr << "WARNING: Invalid heading in motion plan." << std::endl;
         }
     }
 
-    const auto getRow() -> int { return position.first; }
+    const auto getRow() -> int { return position_.first; }
 
-    const auto getColumn() -> int { return position.second; }
+    const auto getColumn() -> int { return position_.second; }
 
-    const auto getHeading() -> char { return cardinalPoints[headingIndex]; }
+    const auto getHeading() -> char { return cardinalPoints_[headingIndex_]; }
 
     auto tick(char instruction) -> void {
         switch (instruction) {
@@ -36,15 +36,15 @@ class Localisation {
                 updateposition();
                 break;
             case 'L':
-                headingIndex--;
-                if (headingIndex < 0) {
-                    headingIndex += 4;
+                headingIndex_--;
+                if (headingIndex_ < 0) {
+                    headingIndex_ += 4;
                 }
                 break;
             case 'R':
-                headingIndex++;
-                if (headingIndex > 3) {
-                    headingIndex -= 4;
+                headingIndex_++;
+                if (headingIndex_ > 3) {
+                    headingIndex_ -= 4;
                 }
                 break;
             default:
@@ -56,16 +56,16 @@ class Localisation {
     auto updateposition() -> void {
         switch (getHeading()) {
             case 'N':
-                position.first--;
+                position_.first--;
                 break;
             case 'E':
-                position.second++;
+                position_.second++;
                 break;
             case 'S':
-                position.first++;
+                position_.first++;
                 break;
             case 'W':
-                position.second--;
+                position_.second--;
                 break;
             default:
                 std::cerr << "WARNING: Invalid character for cardinal direction." << std::endl;
@@ -73,9 +73,9 @@ class Localisation {
     }
 
    private:
-    const std::array<char, 4> cardinalPoints = {'N', 'E', 'S', 'W'};
-    std::pair<int, int> position;  // row, column
-    int headingIndex;
+    const std::array<char, 4> cardinalPoints_ = {'N', 'E', 'S', 'W'};
+    std::pair<int, int> position_;  // row, column
+    int headingIndex_;
 };
 
 #endif  // LOCALISATION_HPP_

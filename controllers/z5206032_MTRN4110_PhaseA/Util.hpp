@@ -10,25 +10,25 @@ auto printConsole(std::string str) -> void {
 
 class Timer {
    public:
-    Timer(webots::Robot &robot) : robot(std::make_unique<webots::Robot>(robot)), ref(), exp() {}
+    Timer(webots::Robot &robot) : robot_(std::make_unique<webots::Robot>(robot)), ref_(), exp_() {}
     ~Timer() {}
 
     void time(double expiry) {
-        ref = robot->getTime();
-        exp = expiry;
+        ref_ = robot_->getTime();
+        exp_ = expiry;
     }
 
-    bool expired() { return (robot->getTime() - ref) > exp; }
+    bool expired() { return (robot_->getTime() - ref_) > exp_; }
 
     void print() {
-        std::cout << "Time: " << ref << std::endl;
-        std::cout << "Expiry: " << exp << std::endl;
+        std::cout << "Time: " << ref_ << std::endl;
+        std::cout << "Expiry: " << exp_ << std::endl;
     }
 
    private:
-    std::unique_ptr<webots::Robot> robot;
-    double ref;  // Time of reference
-    double exp;  // Expiry duration
+    std::unique_ptr<webots::Robot> robot_;
+    double ref_;  // Time of reference
+    double exp_;  // Expiry duration
 };
 
 #endif  // UTIL_HPP_

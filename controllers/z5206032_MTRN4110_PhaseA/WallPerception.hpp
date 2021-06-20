@@ -9,10 +9,10 @@
 
 class WallPerception {
    public:
-    WallPerception(webots::Robot &robot) : lidar(robot.getLidar("lidar")) {
+    WallPerception(webots::Robot &robot) : lidar_(robot.getLidar("lidar_")) {
         const auto timeStep = robot.getBasicTimeStep();
-        lidar->enable(timeStep);
-        lidar->enablePointCloud();
+        lidar_->enable(timeStep);
+        lidar_->enablePointCloud();
 
         // Let LIDAR initialise because poor simulation design.
         while (tick() == -1) {
@@ -20,20 +20,20 @@ class WallPerception {
         }
     }
 
-    const auto getLeftWall() -> char { return walls[left]; }
+    const auto getLeftWall() -> char { return walls_[left_]; }
 
-    const auto getFrontWall() -> char { return walls[front]; }
+    const auto getFrontWall() -> char { return walls_[front_]; }
 
-    const auto getRightWall() -> char { return walls[right]; }
+    const auto getRightWall() -> char { return walls_[right_]; }
 
     auto tick() -> int {
-        const auto pointCloud = lidar->getPointCloud();
+        const auto pointCloud = lidar_->getPointCloud();
         if (pointCloud == nullptr) {
             return -1;
         }
 
         // Convert (x, y) into distances.
-        const auto numberPoints = lidar->getNumberOfPoints();
+        const auto numberPoints = lidar_->getNumberOfPoints();
         auto pointDistances = std::vector<double>();
         pointDistances.reserve(numberPoints);
         for (int i = 0; i < numberPoints; i++) {
@@ -46,7 +46,7 @@ class WallPerception {
         auto wallDetected = std::vector<bool>();
         wallDetected.reserve(numberPoints);
         for (const auto &point : pointDistances) {
-            wallDetected.push_back(point < wallDistance);
+            wallDetected.push_back(point < wallDistance_);
         }
 
         // Sectorise.
@@ -62,7 +62,7 @@ class WallPerception {
         // Get number of distances for a section that is within wall distance.
         constexpr auto sensitivity = static_cast<double>(0.9);  // [0, 1]
         const auto pointThreshold = static_cast<int>(pointDensity * sensitivity);
-        for (auto &wall : walls) {
+        for (auto &wall : walls_) {
             wall =
                 std::count(wallDetected.begin() + pointOnset,
                            wallDetected.begin() + pointOnset + pointSpread, true) > pointThreshold
@@ -75,12 +75,12 @@ class WallPerception {
     }
 
    private:
-    static constexpr auto wallDistance = 0.085;  // Distance from centre of cell to wall.
-    std::unique_ptr<webots::Lidar> lidar;        // 360 lidar.
-    std::array<char, 3> walls;
-    static constexpr auto left = 0;
-    static constexpr auto front = 1;
-    static constexpr auto right = 2;
+    static constexpr auto wallDistance_ = 0.085;  // Distance from centre of cell to wall.
+    std::unique_ptr<webots::Lidar> lidar_;        // 360 lidar.
+    std::array<char, 3> walls_;
+    static constexpr auto left_ = 0;
+    static constexpr auto front_ = 1;
+    static constexpr auto right_ = 2;
 };
 
 #endif  // WALL_PERCEPTION_HPP_

@@ -16,7 +16,7 @@
 class TaskControl {
    public:
     TaskControl(webots::Robot &robot)
-        : drivePlan(DrivePlan(drivePlanPath)),
+        : drivePlan(DrivePlan(drivePlanPath_)),
           kinematics(Kinematics(robot)),
           localisation(
               Localisation(drivePlan.getInitialLocalisation(), drivePlan.getInitialHeading())),
@@ -28,13 +28,13 @@ class TaskControl {
         writeMessage2csv();
     }
 
-    auto tick() -> void { step++; }
+    auto tick() -> void { step_++; }
 
-    auto acquireLock() -> void { bigLock = true; }
+    auto acquireLock() -> void { bigLock_ = true; }
 
-    auto releaseLock() -> void { bigLock = false; }
+    auto releaseLock() -> void { bigLock_ = false; }
 
-    const auto isLockBusy() -> bool { return bigLock; }
+    const auto isLockBusy() -> bool { return bigLock_; }
 
     auto displayMessage() -> void {
         auto ss = std::stringstream();
@@ -49,7 +49,7 @@ class TaskControl {
     }
 
     auto initcsv() -> void {
-        auto csv = std::ofstream(csvPath, std::ios::trunc);
+        auto csv = std::ofstream(csvPath_, std::ios::trunc);
         const auto &msg = getMessage();
 
         // Overwrite file with headers.
@@ -61,7 +61,7 @@ class TaskControl {
     }
 
     auto writeMessage2csv() -> void {
-        auto csv = std::ofstream(csvPath, std::ios::app);
+        auto csv = std::ofstream(csvPath_, std::ios::app);
         const auto &msg = getMessage();
 
         // Append message to CSV.
@@ -76,7 +76,7 @@ class TaskControl {
     auto getMessage() -> std::vector<std::pair<std::string, std::string>> {
         auto msg = std::vector<std::pair<std::string, std::string>>();
         auto ss = std::stringstream();
-        ss << std::setw(3) << std::setfill('0') << step;
+        ss << std::setw(3) << std::setfill('0') << step_;
         msg.push_back({"Step", ss.str()});
         msg.push_back({"Row", std::string(1, localisation.getRow())});
         msg.push_back({"Column", std::string(1, localisation.getColumn())});
@@ -90,14 +90,15 @@ class TaskControl {
    public:
     DrivePlan drivePlan;            // Driving plan (can be replaced by autonomous driving)
     Kinematics kinematics;          // Kinematic model
-    Localisation localisation;      // Simple localisation using initial position and heading
+    Localisation localisation;      // Simple localisation using initial position
+                                    // and heading
     WallPerception wallPerception;  // LIDAR sensor
 
    private:
-    unsigned int step = 0;
-    bool bigLock = false;
-    static constexpr auto drivePlanPath = "../../MotionPlan.txt";
-    static constexpr auto csvPath = "../../MotionExecution.csv";
+    unsigned int step_ = 0;
+    bool bigLock_ = false;
+    static constexpr auto drivePlanPath_ = "../../MotionPlan.txt";
+    static constexpr auto csvPath_ = "../../MotionExecution.csv";
 };
 
 #endif  // TASK_CONTROL_HPP_
