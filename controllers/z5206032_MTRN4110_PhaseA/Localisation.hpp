@@ -14,7 +14,7 @@ class Localisation {
           inertialUnit_(robot.getInertialUnit("inertial unit")),
           position_(position) {
         // Initialise position sensors.
-        const auto timeStep = robot.getBasicTimeStep();
+        const auto timeStep = 64;  // robot.getBasicTimeStep();
         leftPositionSensor_->enable(timeStep);
         rightPositionSensor_->enable(timeStep);
 

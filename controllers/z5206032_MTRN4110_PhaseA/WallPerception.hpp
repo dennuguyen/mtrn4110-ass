@@ -10,7 +10,7 @@
 class WallPerception {
    public:
     WallPerception(webots::Robot &robot) : lidar_(robot.getLidar("lidar")) {
-        const auto timeStep = robot.getBasicTimeStep();
+        const auto timeStep = 64;  // robot.getBasicTimeStep();
         lidar_->enable(timeStep);
         lidar_->enablePointCloud();
 

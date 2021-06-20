@@ -14,7 +14,7 @@
 
 // Perform simulation steps until Webots is stopping the controller.
 static auto simulationSteps(webots::Robot &robot) -> void {
-    const auto timeStep = robot.getBasicTimeStep();
+    const auto timeStep = 64;  // robot.getBasicTimeStep();
     while (robot.step(timeStep) != -1) {
     }
 }
