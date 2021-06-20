@@ -18,8 +18,8 @@ class TaskControl {
     TaskControl(webots::Robot &robot)
         : drivePlan(DrivePlan(drivePlanPath_)),
           kinematics(Kinematics(robot)),
-          localisation(
-              Localisation(drivePlan.getInitialLocalisation(), drivePlan.getInitialHeading())),
+          localisation(Localisation(robot, drivePlan.getInitialLocalisation(),
+                                    drivePlan.getInitialHeading())),
           wallPerception(WallPerception(robot)) {
         initcsv();
 

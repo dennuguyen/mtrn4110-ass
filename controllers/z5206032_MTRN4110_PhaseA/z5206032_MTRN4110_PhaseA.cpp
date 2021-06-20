@@ -39,7 +39,7 @@ static auto realtimeSteps(TaskControl &taskControl, Timer &timer) -> void {
                 return;
             }
 
-            taskControl.kinematics.tick(instr);
+            taskControl.kinematics.tick(instr, taskControl.localisation.getInitialPositions());
 
             // Block other actions.
             taskControl.acquireLock();

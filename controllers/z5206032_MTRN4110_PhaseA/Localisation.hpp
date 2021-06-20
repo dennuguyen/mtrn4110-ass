@@ -2,10 +2,26 @@
 #define LOCALISATION_HPP_
 
 #include <array>
+#include <webots/InertialUnit.hpp>
+#include <webots/PositionSensor.hpp>
+#include <webots/Robot.hpp>
 
 class Localisation {
    public:
-    Localisation(std::pair<int, int> position, char heading) : position_(position) {
+    Localisation(webots::Robot &robot, std::pair<int, int> position, char heading)
+        : leftPositionSensor_(robot.getPositionSensor("left wheel sensor")),
+          rightPositionSensor_(robot.getPositionSensor("right wheel sensor")),
+          inertialUnit_(robot.getInertialUnit("inertial unit")),
+          position_(position) {
+        // Initialise position sensors.
+        const auto timeStep = robot.getBasicTimeStep();
+        leftPositionSensor_->enable(timeStep);
+        rightPositionSensor_->enable(timeStep);
+
+        // Initialise inertial unit.
+        inertialUnit_->enable(timeStep);
+
+        // Get heading index.
         switch (heading) {
             case 'N':
                 headingIndex_ = 0;
@@ -24,16 +40,26 @@ class Localisation {
         }
     }
 
-    const auto getRow() -> int { return position_.first; }
+    const auto getRow() const -> int { return position_.first; }
 
-    const auto getColumn() -> int { return position_.second; }
+    const auto getColumn() const -> int { return position_.second; }
 
-    const auto getHeading() -> char { return cardinalPoints_[headingIndex_]; }
+    const auto getHeading() const -> char { return cardinalPoints_[headingIndex_]; }
 
-    auto tick(char instruction) -> void {
+    auto tick(char instruction) -> void { updateHeadingByPlan(instruction); }
+
+    const auto getInitialPositions() const -> std::pair<double, double> {
+        return {leftPositionSensor_->getValue(), rightPositionSensor_->getValue()};
+    }
+
+    const auto getYaw() const -> double { return inertialUnit_->getRollPitchYaw()[2]; }
+
+   private:
+    // Updates the heading using information given by motion plan sequence.
+    auto updateHeadingByPlan(char instruction) -> void {
         switch (instruction) {
             case 'F':
-                updateposition();
+                updatePositionByPlan();
                 break;
             case 'L':
                 headingIndex_--;
@@ -52,8 +78,8 @@ class Localisation {
         }
     }
 
-   private:
-    auto updateposition() -> void {
+    // Updates the position using information given by motion plan sequence.
+    auto updatePositionByPlan() -> void {
         switch (getHeading()) {
             case 'N':
                 position_.first--;
@@ -72,7 +98,14 @@ class Localisation {
         }
     }
 
+    auto updatePositionByOdometry() -> void {}
+
+    auto updateHeadingByIMU() -> void {}
+
    private:
+    std::unique_ptr<webots::PositionSensor> leftPositionSensor_;
+    std::unique_ptr<webots::PositionSensor> rightPositionSensor_;
+    std::unique_ptr<webots::InertialUnit> inertialUnit_;
     const std::array<char, 4> cardinalPoints_ = {'N', 'E', 'S', 'W'};
     std::pair<int, int> position_;  // row, column
     int headingIndex_;
