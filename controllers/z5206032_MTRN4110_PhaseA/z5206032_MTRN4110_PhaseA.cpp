@@ -1,11 +1,3 @@
-// File:          z5206032_MTRN4110_PhaseA.cpp
-// Date:          14/06/2021
-// Description:   Controller of E-puck for Phase A - Driving and Perception
-// Author:        Dan Nguyen (z5206032)
-// Modifications:
-// Platform:      Windows
-// Notes:
-
 #include <thread>
 #include <webots/Robot.hpp>
 
