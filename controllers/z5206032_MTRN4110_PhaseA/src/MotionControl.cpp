@@ -1,10 +1,10 @@
-#include "Kinematics.hpp"
+#include "MotionControl.hpp"
 
 #include "Util.hpp"
 
 namespace mtrn4110 {
 
-Kinematics::Kinematics(webots::Robot &robot)
+MotionControl::MotionControl(webots::Robot &robot)
     : timer_(robot),
       leftMotor_(robot.getMotor("left wheel motor")),
       rightMotor_(robot.getMotor("right wheel motor")),
@@ -20,14 +20,14 @@ Kinematics::Kinematics(webots::Robot &robot)
     setPoint({0, 0}, {0, 0});
 }
 
-Kinematics::Kinematics(Kinematics &&kinematics) noexcept
-    : timer_(std::move(kinematics.timer_)),
-      leftMotor_(std::move(kinematics.leftMotor_)),
-      rightMotor_(std::move(kinematics.rightMotor_)),
-      leftPositionSensor_(std::move(kinematics.leftPositionSensor_)),
-      rightPositionSensor_(std::move(kinematics.rightPositionSensor_)) {}
+MotionControl::MotionControl(MotionControl &&motionControl) noexcept
+    : timer_(std::move(motionControl.timer_)),
+      leftMotor_(std::move(motionControl.leftMotor_)),
+      rightMotor_(std::move(motionControl.rightMotor_)),
+      leftPositionSensor_(std::move(motionControl.leftPositionSensor_)),
+      rightPositionSensor_(std::move(motionControl.rightPositionSensor_)) {}
 
-auto Kinematics::tick(char instruction) -> void {
+auto MotionControl::tick(char instruction) -> void {
     switch (instruction) {
         case 'L':
             // setGain({9.9, 0.012, 0.82}, {10.1, 0.002, 0.82});
@@ -49,13 +49,13 @@ auto Kinematics::tick(char instruction) -> void {
     }
 }
 
-auto Kinematics::setGain(std::tuple<double, double, double> left,
-                         std::tuple<double, double, double> right) -> void {
+auto MotionControl::setGain(std::tuple<double, double, double> left,
+                            std::tuple<double, double, double> right) -> void {
     leftMotor_->setControlPID(std::get<0>(left), std::get<1>(left), std::get<2>(left));
     rightMotor_->setControlPID(std::get<0>(right), std::get<1>(right), std::get<2>(right));
 }
 
-auto Kinematics::setPoint(std::tuple<double, double> left, std::tuple<double, double> right)
+auto MotionControl::setPoint(std::tuple<double, double> left, std::tuple<double, double> right)
     -> void {
     auto leftInitial = leftPositionSensor_->getValue();
     auto rightInitial = rightPositionSensor_->getValue();

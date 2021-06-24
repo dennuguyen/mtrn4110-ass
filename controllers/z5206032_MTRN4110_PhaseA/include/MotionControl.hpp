@@ -1,5 +1,5 @@
-#ifndef KINEMATICS_HPP_
-#define KINEMATICS_HPP_
+#ifndef MOTION_CONTROL_HPP_
+#define MOTION_CONTROL_HPP_
 
 #include <cmath>
 #include <memory>
@@ -12,12 +12,12 @@
 
 namespace mtrn4110 {
 
-class Kinematics {
+class MotionControl {
    public:
-    explicit Kinematics(webots::Robot &);
-    explicit Kinematics(Kinematics const &) = delete;
-    Kinematics(Kinematics &&) noexcept;
-    ~Kinematics() = default;
+    explicit MotionControl(webots::Robot &);
+    explicit MotionControl(MotionControl const &) = delete;
+    MotionControl(MotionControl &&) noexcept;
+    ~MotionControl() = default;
     auto tick(char) -> void;
     auto setGain(std::tuple<double, double, double>, std::tuple<double, double, double>) -> void;
     auto setPoint(std::tuple<double, double> left, std::tuple<double, double> right) -> void;
@@ -40,4 +40,4 @@ class Kinematics {
 
 }  // namespace mtrn4110
 
-#endif  // KINEMATICS_HPP_
+#endif  // MOTION_CONTROL_HPP_

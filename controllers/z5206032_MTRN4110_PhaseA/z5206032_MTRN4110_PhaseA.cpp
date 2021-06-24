@@ -32,7 +32,7 @@ static auto realtimeSteps(mtrn4110::TaskControl &taskControl, mtrn4110::Timer &t
                 return;
             }
 
-            taskControl.kinematics.tick(instr);
+            taskControl.motionControl.tick(instr);
 
             // Block other actions.
             taskControl.acquireLock();

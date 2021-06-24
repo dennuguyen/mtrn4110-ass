@@ -5,8 +5,9 @@
 #include <webots/Robot.hpp>
 
 #include "DrivePlan.hpp"
-#include "Kinematics.hpp"
 #include "Localisation.hpp"
+#include "MotionControl.hpp"
+#include "PathPlanner.hpp"
 #include "Util.hpp"
 #include "WallPerception.hpp"
 
@@ -29,13 +30,15 @@ class TaskControl {
     auto const getMessage() const -> std::vector<std::pair<std::string, std::string>>;
 
    public:
-    static constexpr auto drivePlanPath_ = "../../MotionPlan.txt";
-    static constexpr auto csvPath_ = "../../MotionExecution.csv";
-    DrivePlan drivePlan;            // Driving plan (can be replaced by autonomous driving)
-    Kinematics kinematics;          // Kinematic model
+    static constexpr auto drivePlanPath = "../../MotionPlan.txt";
+    static constexpr auto csvPath = "../../MotionExecution.csv";
+    static constexpr auto mapPath = "../../Map.txt";
+    PathPlanner pathPlanner;        // Path planner.
+    DrivePlan drivePlan;            // Driving plan (can be replaced by autonomous driving).
+    MotionControl motionControl;    // Kinematic model.
     Localisation localisation;      // Simple localisation using initial position
-                                    // and heading
-    WallPerception wallPerception;  // LIDAR sensor
+                                    // and heading.
+    WallPerception wallPerception;  // LIDAR sensor.
 
    private:
     unsigned int step_ = 0;

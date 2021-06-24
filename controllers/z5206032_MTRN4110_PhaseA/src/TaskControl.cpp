@@ -7,8 +7,9 @@
 namespace mtrn4110 {
 
 TaskControl::TaskControl(webots::Robot &robot)
-    : drivePlan(DrivePlan(drivePlanPath_)),
-      kinematics(Kinematics(robot)),
+    : pathPlanner(PathPlanner(mapPath)),
+      drivePlan(DrivePlan(drivePlanPath)),
+      motionControl(MotionControl(robot)),
       localisation(
           Localisation(robot, drivePlan.getInitialLocalisation(), drivePlan.getInitialHeading())),
       wallPerception(WallPerception(robot)) {
@@ -20,8 +21,9 @@ TaskControl::TaskControl(webots::Robot &robot)
 }
 
 TaskControl::TaskControl(TaskControl &&taskControl) noexcept
-    : drivePlan(std::move(taskControl.drivePlan)),
-      kinematics(std::move(taskControl.kinematics)),
+    : pathPlanner(std::move(taskControl.pathPlanner)),
+      drivePlan(std::move(taskControl.drivePlan)),
+      motionControl(std::move(taskControl.motionControl)),
       localisation(std::move(taskControl.localisation)),
       wallPerception(std::move(taskControl.wallPerception)),
       step_(std::move(taskControl.step_)),
@@ -48,7 +50,7 @@ auto TaskControl::displayMessage() const -> void {
 }
 
 auto TaskControl::initcsv() const -> void {
-    auto csv = std::ofstream(csvPath_, std::ios::trunc);
+    auto csv = std::ofstream(csvPath, std::ios::trunc);
     auto const &msg = getMessage();
 
     // Overwrite file with headers.
@@ -60,7 +62,7 @@ auto TaskControl::initcsv() const -> void {
 }
 
 auto TaskControl::writeMessage2csv() const -> void {
-    auto csv = std::ofstream(csvPath_, std::ios::app);
+    auto csv = std::ofstream(csvPath, std::ios::app);
     auto const &msg = getMessage();
 
     // Append message to CSV.
