@@ -5,50 +5,47 @@
 #include <memory>
 #include <tuple>
 #include <webots/Motor.hpp>
+#include <webots/PositionSensor.hpp>
 #include <webots/Robot.hpp>
 
 #include "Util.hpp"
 
 class Kinematics {
-   public:
+  public:
     Kinematics(webots::Robot &robot)
-        : timer_(robot),
-          leftMotor_(robot.getMotor("left wheel motor")),
-          rightMotor_(robot.getMotor("right wheel motor")) {
+        : timer_(robot), leftMotor_(robot.getMotor("left wheel motor")),
+          rightMotor_(robot.getMotor("right wheel motor")),
+          leftPositionSensor_(robot.getPositionSensor("left wheel sensor")),
+          rightPositionSensor_(robot.getPositionSensor("right wheel sensor")) {
         // Initialise motors.
-        setGain({0, 0, 0}, {0, 0, 0});
+        setGain({10, 0, 0}, {10, 0, 0});
         setPoint({0, 0}, {0, 0});
+
+        // Initialise position sensors.
+        const auto timeStep = robot.getBasicTimeStep();
+        leftPositionSensor_->enable(timeStep);
+        rightPositionSensor_->enable(timeStep);
     }
 
-    auto tick(char instruction, std::pair<double, double> initialPosition) -> void {
+    auto tick(char instruction) -> void {
         switch (instruction) {
-            case 'L':
-                setGain({9.9, 0.012, 0.82}, {10.1, 0.002, 0.82});
-                timer_.time(0.1);
-                while (timer_.expired() == false) {
-                }
-                setPoint({initialPosition.first - idealSetPosition2Turn, 0.4 * maxMotorSpeed},
-                         {initialPosition.second + idealSetPosition2Turn, 0.4 * maxMotorSpeed});
-                break;
-            case 'R':
-                setGain({9.9, 0.012, 0.82}, {10.1, 0.002, 0.82});
-                timer_.time(0.1);
-                while (timer_.expired() == false) {
-                }
-                setPoint({initialPosition.first + idealSetPosition2Turn, 0.4 * maxMotorSpeed},
-                         {initialPosition.second - idealSetPosition2Turn, 0.4 * maxMotorSpeed});
-                break;
-            case 'F':
-                // setGain({1, 0, 0}, {1, 0, 0});
-                // setGain({9.58, 0.003, 0.82}, {9.58, 0.002, 0.82});
-                timer_.time(0.1);
-                while (timer_.expired() == false) {
-                }
-                setPoint({initialPosition.first + idealSetPosition2NextCell, 0.6 * maxMotorSpeed},
-                         {initialPosition.second + idealSetPosition2NextCell, 0.6 * maxMotorSpeed});
-                break;
-            default:
-                std::cerr << "WARNING: Invalid instruction in motion sequence." << std::endl;
+        case 'L':
+            // setGain({9.9, 0.012, 0.82}, {10.1, 0.002, 0.82});
+            setPoint({-idealSetPosition2Turn, 0.4 * maxMotorSpeed},
+                     {idealSetPosition2Turn, 0.4 * maxMotorSpeed});
+            break;
+        case 'R':
+            // setGain({9.9, 0.012, 0.82}, {10.1, 0.002, 0.82});
+            setPoint({idealSetPosition2Turn, 0.4 * maxMotorSpeed},
+                     {-idealSetPosition2Turn, 0.4 * maxMotorSpeed});
+            break;
+        case 'F':
+            // setGain({9.58, 0.003, 0.82}, {9.58, 0.002, 0.82});
+            setPoint({idealSetPosition2NextCell, 0.4 * maxMotorSpeed},
+                     {idealSetPosition2NextCell, 0.4 * maxMotorSpeed});
+            break;
+        default:
+            std::cerr << "WARNING: Invalid instruction in motion sequence." << std::endl;
         }
     }
 
@@ -59,13 +56,15 @@ class Kinematics {
     }
 
     auto setPoint(std::tuple<double, double> left, std::tuple<double, double> right) -> void {
-        leftMotor_->setPosition(std::get<0>(left));
+        auto leftInitial = leftPositionSensor_->getValue();
+        auto rightInitial = rightPositionSensor_->getValue();
+        leftMotor_->setPosition(leftInitial + std::get<0>(left));
         leftMotor_->setVelocity(std::get<1>(left));
-        rightMotor_->setPosition(std::get<0>(right));
+        rightMotor_->setPosition(rightInitial + std::get<0>(right));
         rightMotor_->setVelocity(std::get<1>(right));
     }
 
-   public:
+  public:
     static constexpr auto maxMotorSpeed = 6.28;
     static constexpr auto wheelRadius = 0.02;
     static constexpr auto axleLength = 0.0566;
@@ -73,10 +72,12 @@ class Kinematics {
     static constexpr auto idealSetPosition2NextCell = distanceBetweenCells / wheelRadius;
     static constexpr auto idealSetPosition2Turn = axleLength * M_PI / 2.0 / wheelRadius / 2.0;
 
-   private:
+  private:
     Timer timer_;
     std::unique_ptr<webots::Motor> leftMotor_;
     std::unique_ptr<webots::Motor> rightMotor_;
+    std::unique_ptr<webots::PositionSensor> leftPositionSensor_;
+    std::unique_ptr<webots::PositionSensor> rightPositionSensor_;
 };
 
-#endif  // KINEMATICS_HPP_
+#endif // KINEMATICS_HPP_
