@@ -3,77 +3,81 @@
 
 #include <cmath>
 #include <memory>
+#include <tuple>
 #include <webots/Motor.hpp>
 #include <webots/PositionSensor.hpp>
 #include <webots/Robot.hpp>
 
-class Kinematics {
-   public:
-    Kinematics(webots::Robot &robot)
-        : leftMotor(robot.getMotor("left wheel motor")),
-          rightMotor(robot.getMotor("right wheel motor")),
-          leftPositionSensor(robot.getPositionSensor("left wheel sensor")),
-          rightPositionSensor(robot.getPositionSensor("right wheel sensor")) {
-        // Initialise left motor.
-        leftMotor->setPosition(0.0);
-        leftMotor->setVelocity(0.0);
-        leftMotor->setControlPID(10, 0, 0);
+#include "Util.hpp"
 
-        // Initialise right motor.
-        rightMotor->setPosition(0.0);
-        rightMotor->setVelocity(0.0);
-        rightMotor->setControlPID(10, 0, 0);
+class Kinematics {
+  public:
+    Kinematics(webots::Robot &robot)
+        : timer_(robot), leftMotor_(robot.getMotor("left wheel motor")),
+          rightMotor_(robot.getMotor("right wheel motor")),
+          leftPositionSensor_(robot.getPositionSensor("left wheel sensor")),
+          rightPositionSensor_(robot.getPositionSensor("right wheel sensor")) {
+        // Initialise motors.
+        setGain({10, 0, 0}, {10, 0, 0});
+        setPoint({0, 0}, {0, 0});
 
         // Initialise position sensors.
         const auto timeStep = robot.getBasicTimeStep();
-        leftPositionSensor->enable(timeStep);
-        rightPositionSensor->enable(timeStep);
+        leftPositionSensor_->enable(timeStep);
+        rightPositionSensor_->enable(timeStep);
     }
 
     auto tick(char instruction) -> void {
         switch (instruction) {
-            case 'L':
-                odometry(-idealSetPosition2Turn, idealSetPosition2Turn);
-                break;
-            case 'R':
-                odometry(idealSetPosition2Turn, -idealSetPosition2Turn);
-                break;
-            case 'F':
-                odometry(idealSetPosition2NextCell, idealSetPosition2NextCell);
-                break;
-            default:
-                std::cerr << "WARNING: Invalid instruction in motion sequence." << std::endl;
+        case 'L':
+            // setGain({9.9, 0.012, 0.82}, {10.1, 0.002, 0.82});
+            setPoint({-idealSetPosition2Turn, 0.4 * maxMotorSpeed},
+                     {idealSetPosition2Turn, 0.4 * maxMotorSpeed});
+            break;
+        case 'R':
+            // setGain({9.9, 0.012, 0.82}, {10.1, 0.002, 0.82});
+            setPoint({idealSetPosition2Turn, 0.4 * maxMotorSpeed},
+                     {-idealSetPosition2Turn, 0.4 * maxMotorSpeed});
+            break;
+        case 'F':
+            // setGain({9.58, 0.003, 0.82}, {9.58, 0.002, 0.82});
+            setPoint({idealSetPosition2NextCell, 0.4 * maxMotorSpeed},
+                     {idealSetPosition2NextCell, 0.4 * maxMotorSpeed});
+            break;
+        default:
+            std::cerr << "WARNING: Invalid instruction in motion sequence." << std::endl;
         }
     }
 
-   private:
-    // Odometry-based localisation is accurate enough for 24-step motion plans.
-    // + Easy to implement.
-    // - Not very good with turns.
-    // - No ideal velocity.
-    auto odometry(double left, double right) -> void {
-        auto leftInitial = leftPositionSensor->getValue();
-        auto rightInitial = rightPositionSensor->getValue();
-        leftMotor->setPosition(leftInitial + left);
-        rightMotor->setPosition(rightInitial + right);
-        leftMotor->setVelocity(2.2);
-        rightMotor->setVelocity(2.2);
+    auto setGain(std::tuple<double, double, double> left, std::tuple<double, double, double> right)
+        -> void {
+        leftMotor_->setControlPID(std::get<0>(left), std::get<1>(left), std::get<2>(left));
+        rightMotor_->setControlPID(std::get<0>(right), std::get<1>(right), std::get<2>(right));
     }
 
-    // Dead reckoning.
-    auto dead_reckoning(double left, double right) -> void {}
+    auto setPoint(std::tuple<double, double> left, std::tuple<double, double> right) -> void {
+        auto leftInitial = leftPositionSensor_->getValue();
+        auto rightInitial = rightPositionSensor_->getValue();
+        leftMotor_->setPosition(leftInitial + std::get<0>(left));
+        leftMotor_->setVelocity(std::get<1>(left));
+        rightMotor_->setPosition(rightInitial + std::get<0>(right));
+        rightMotor_->setVelocity(std::get<1>(right));
+    }
 
-   private:
-    std::unique_ptr<webots::Motor> leftMotor;
-    std::unique_ptr<webots::Motor> rightMotor;
-    std::unique_ptr<webots::PositionSensor> leftPositionSensor;
-    std::unique_ptr<webots::PositionSensor> rightPositionSensor;
+  public:
     static constexpr auto maxMotorSpeed = 6.28;
     static constexpr auto wheelRadius = 0.02;
     static constexpr auto axleLength = 0.0566;
     static constexpr auto distanceBetweenCells = 0.165;
     static constexpr auto idealSetPosition2NextCell = distanceBetweenCells / wheelRadius;
     static constexpr auto idealSetPosition2Turn = axleLength * M_PI / 2.0 / wheelRadius / 2.0;
+
+  private:
+    Timer timer_;
+    std::unique_ptr<webots::Motor> leftMotor_;
+    std::unique_ptr<webots::Motor> rightMotor_;
+    std::unique_ptr<webots::PositionSensor> leftPositionSensor_;
+    std::unique_ptr<webots::PositionSensor> rightPositionSensor_;
 };
 
-#endif  // KINEMATICS_HPP_
+#endif // KINEMATICS_HPP_

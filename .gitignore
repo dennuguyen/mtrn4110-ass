@@ -1,0 +1,14 @@
+# Ignore everything
+*
+
+# Except
+!.gitignore
+!*.wbt
+!*.txt
+!*.pdf
+!*.csv
+!*.cpp
+!*.hpp
+
+# and in their subdirectories
+!*/

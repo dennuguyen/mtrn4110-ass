@@ -20,10 +20,10 @@ class DrivePlan {
         }
 
         // Get motion plan assuming it is valid.
-        motionPlanFile >> motionPlan;
-        printConsole("Motion Plan: " + motionPlan);
+        motionPlanFile >> motionPlan_;
+        printConsole("Motion Plan: " + motionPlan_);
 
-        std::copy(motionPlan.begin() + 3, motionPlan.end(), std::back_inserter(motionSequence));
+        std::copy(motionPlan_.begin() + 3, motionPlan_.end(), std::back_inserter(motionSequence_));
         printConsole("Motion plan read in!");
 
         printConsole("Executing motion plan...");
@@ -31,36 +31,36 @@ class DrivePlan {
 
     ~DrivePlan() { printConsole("Motion plan executed!"); }
 
-    const auto getMotionPlan() -> std::string { return motionPlan; }
+    const auto getMotionPlan() const -> std::string { return motionPlan_; }
 
     const auto nextSequence() -> char {
-        if (motionSequence.empty() == true) {
+        if (motionSequence_.empty() == true) {
             return 'E';
         }
 
-        auto sequence = motionSequence.front();
-        motionSequence.pop_front();
+        auto sequence = motionSequence_.front();
+        motionSequence_.pop_front();
         return sequence;
     }
 
-    const auto getInitialLocalisation() -> std::pair<int, int> {
-        return {static_cast<int>(motionPlan[0]),   // row
-                static_cast<int>(motionPlan[1])};  // column
+    const auto getInitialLocalisation() const -> std::pair<int, int> {
+        return {static_cast<int>(motionPlan_[0]),   // row
+                static_cast<int>(motionPlan_[1])};  // column
     }
 
-    const auto getInitialHeading() -> char { return motionPlan[2]; }
+    const auto getInitialHeading() const -> char { return motionPlan_[2]; }
 
-    auto displayMotionSequence() -> void {
+    auto displayMotionSequence() const -> void {
         auto ss = std::stringstream();
-        for (auto &sequence : motionSequence) {
+        for (auto &sequence : motionSequence_) {
             ss << sequence;
         }
         printConsole(ss.str());
     }
 
    private:
-    std::string motionPlan;
-    std::deque<char> motionSequence;
+    std::string motionPlan_;
+    std::deque<char> motionSequence_;
 };
 
 #endif  // DRIVE_PLAN_HPP_

@@ -4,7 +4,7 @@ WorldInfo {
 }
 Viewpoint {
   orientation 1 0 0 4.71238898038469
-  position -5.744097159438401e-17 4.730352242619739 2.62587298717184e-16
+  position -5.744097159438401e-17 3.943920596371543 4.070476773435639e-16
 }
 TexturedBackground {
 }
@@ -16,25 +16,6 @@ RectangleArena {
 }
 DEF MAZE Group {
   children [
-    DEF cornerStone Solid {
-      translation -0.7425 0.0325 -0.4125
-      children [
-        DEF cornerStone Shape {
-          appearance PBRAppearance {
-            baseColor 1 0 1
-            roughness 0.5
-          }
-          geometry Box {
-            size 0.015 0.065 0.015
-          }
-        }
-      ]
-      name "solid(4)"
-      boundingObject USE cornerStone
-      physics Physics {
-        density 100
-      }
-    }
     DEF cornerStone Solid {
       translation 0.7425 0.0325 -0.4125
       children [
@@ -93,25 +74,6 @@ DEF MAZE Group {
       }
     }
     DEF hWall Solid {
-      translation 0 0.0325 -0.4125
-      children [
-        DEF hWall Shape {
-          appearance PBRAppearance {
-            baseColor 1 0 0
-            roughness 0.3
-          }
-          geometry Box {
-            size 1.46 0.065 0.015
-          }
-        }
-      ]
-      name "solid(1)"
-      boundingObject USE hWall
-      physics Physics {
-        density 100
-      }
-    }
-    DEF hWall Solid {
       translation 0 0.0325 0.4125
       children [
         DEF hWall Shape {
@@ -125,25 +87,6 @@ DEF MAZE Group {
         }
       ]
       boundingObject USE hWall
-      physics Physics {
-        density 100
-      }
-    }
-    DEF vWall Solid {
-      translation -0.7425 0.0325 0
-      children [
-        DEF vWall Shape {
-          appearance PBRAppearance {
-            baseColor 0 0 1
-            roughness 0.3
-          }
-          geometry Box {
-            size 0.015 0.065 0.8
-          }
-        }
-      ]
-      name "solid(2)"
-      boundingObject USE vWall
       physics Physics {
         density 100
       }

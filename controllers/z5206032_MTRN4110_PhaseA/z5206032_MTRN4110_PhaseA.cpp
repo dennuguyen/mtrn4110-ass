@@ -43,7 +43,7 @@ static auto realtimeSteps(TaskControl &taskControl, Timer &timer) -> void {
 
             // Block other actions.
             taskControl.acquireLock();
-            timer.time(5);
+            timer.time(4);
         }
 
         // Wait for action to finish.
