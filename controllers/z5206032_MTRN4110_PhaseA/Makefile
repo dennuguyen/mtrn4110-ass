@@ -39,15 +39,15 @@
 ###
 ### ---- C++ Sources ----
 ### if your program uses several C++ source files:
-CXX_SOURCES = z5206032_MTRN4110_PhaseA.cpp Util.cpp Timer.cpp WallPerception.cpp Localisation.cpp Kinematics.cpp DrivePlan.cpp TaskControl.cpp
+CXX_SOURCES = $(wildcard src/*.cpp) z5206032_MTRN4110_PhaseA.cpp
 ###
 ### ---- Compilation options ----
 ### if special compilation flags are necessary:
-### CFLAGS = -Wno-unused-result
+CFLAGS = -Wall
 ###
 ### ---- Linked libraries ----
 ### if your program needs additional libraries:
-### INCLUDE = -I"/my_library_path/include"
+INCLUDE = -I./include
 ### LIBRARIES = -L"/path/to/my/library" -lmy_library -lmy_other_library
 ###
 ### ---- Linking options ----
