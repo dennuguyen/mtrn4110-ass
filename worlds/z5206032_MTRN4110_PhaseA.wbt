@@ -478,4 +478,8 @@ DEF z5206032 E-puck {
       numberOfLayers 1
     }
   ]
+  groundSensorsSlot [
+    InertialUnit {
+    }
+  ]
 }
