@@ -39,7 +39,7 @@
 ###
 ### ---- C++ Sources ----
 ### if your program uses several C++ source files:
-### CXX_SOURCES = my_plugin.cc my_clever_algo.cpp my_graphics.c++
+CXX_SOURCES = z5206032_MTRN4110_PhaseA.cpp Util.cpp Timer.cpp WallPerception.cpp Localisation.cpp Kinematics.cpp DrivePlan.cpp TaskControl.cpp
 ###
 ### ---- Compilation options ----
 ### if special compilation flags are necessary:

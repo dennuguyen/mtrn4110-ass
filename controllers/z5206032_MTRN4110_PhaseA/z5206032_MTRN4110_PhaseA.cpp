@@ -10,17 +10,18 @@
 #include <webots/Robot.hpp>
 
 #include "TaskControl.hpp"
+#include "Timer.hpp"
 #include "Util.hpp"
 
 // Perform simulation steps until Webots is stopping the controller.
 static auto simulationSteps(webots::Robot &robot) -> void {
-    const auto timeStep = robot.getBasicTimeStep();
+    auto const timeStep = robot.getBasicTimeStep();
     while (robot.step(timeStep) != -1) {
     }
 }
 
 // Perform real-time steps.
-static auto realtimeSteps(TaskControl &taskControl, Timer &timer) -> void {
+static auto realtimeSteps(mtrn4110::TaskControl &taskControl, mtrn4110::Timer &timer) -> void {
     auto instr = 'E';
 
     // Wait a bit.
@@ -68,10 +69,11 @@ static auto realtimeSteps(TaskControl &taskControl, Timer &timer) -> void {
 auto main(int argc, char **argv) -> int {
     // Instantiate webots robot.
     auto robot = webots::Robot();
-    Timer timer(robot);
+    auto timer = mtrn4110::Timer(robot);
 
     // Instantiate our task controller class.
-    auto taskControl = TaskControl(robot);
+    auto taskControl = std::move(mtrn4110::TaskControl(robot));
+    // mtrn4110::TaskControl taskControl(robot);
 
     // Spin threads.
     auto t1 = std::thread(simulationSteps, std::ref(robot));

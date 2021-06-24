@@ -2,102 +2,44 @@
 #define LOCALISATION_HPP_
 
 #include <array>
+#include <memory>
 #include <webots/InertialUnit.hpp>
 #include <webots/Robot.hpp>
 
+namespace mtrn4110 {
+
 class Localisation {
-  public:
-    Localisation(webots::Robot &robot, std::pair<int, int> position, char heading)
-        : inertialUnit_(robot.getInertialUnit("inertial unit")), position_(position) {
+   public:
+    explicit Localisation(webots::Robot &, std::pair<int, int>, char);
+    explicit Localisation(Localisation const &) = delete;
+    Localisation(Localisation &&) noexcept;
+    ~Localisation() = default;
+    auto const getRow() const -> int;
+    auto const getColumn() const -> int;
+    auto const getHeading() const -> char;
+    auto tick(char instruction) -> void;
+    auto const getYaw() const -> double;
 
-        // Initialise inertial unit.
-        const auto timeStep = robot.getBasicTimeStep();
-        inertialUnit_->enable(timeStep);
-
-        // Get heading index.
-        switch (heading) {
-        case 'N':
-            headingIndex_ = 0;
-            break;
-        case 'E':
-            headingIndex_ = 1;
-            break;
-        case 'S':
-            headingIndex_ = 2;
-            break;
-        case 'W':
-            headingIndex_ = 3;
-            break;
-        default:
-            std::cerr << "WARNING: Invalid heading in motion plan." << std::endl;
-        }
-    }
-
-    const auto getRow() const -> int { return position_.first; }
-
-    const auto getColumn() const -> int { return position_.second; }
-
-    const auto getHeading() const -> char { return cardinalPoints[headingIndex_]; }
-
-    auto tick(char instruction) -> void { updateHeadingByPlan(instruction); }
-
-    const auto getYaw() const -> double { return inertialUnit_->getRollPitchYaw()[2]; }
-
-  private:
+   private:
     // Updates the heading using information given by motion plan sequence.
-    auto updateHeadingByPlan(char instruction) -> void {
-        switch (instruction) {
-        case 'F':
-            updatePositionByPlan();
-            break;
-        case 'L':
-            headingIndex_--;
-            if (headingIndex_ < 0) {
-                headingIndex_ += 4;
-            }
-            break;
-        case 'R':
-            headingIndex_++;
-            if (headingIndex_ > 3) {
-                headingIndex_ -= 4;
-            }
-            break;
-        default:
-            std::cerr << "WARNING: Invalid character in motion plan." << std::endl;
-        }
-    }
+    auto updateHeadingByPlan(char instruction) -> void;
 
     // Updates the position using information given by motion plan sequence.
-    auto updatePositionByPlan() -> void {
-        switch (getHeading()) {
-        case 'N':
-            position_.first--;
-            break;
-        case 'E':
-            position_.second++;
-            break;
-        case 'S':
-            position_.first++;
-            break;
-        case 'W':
-            position_.second--;
-            break;
-        default:
-            std::cerr << "WARNING: Invalid character for cardinal direction." << std::endl;
-        }
-    }
+    auto updatePositionByPlan() -> void;
 
-    auto updatePositionByOdometry() -> void {}
+    auto updatePositionByOdometry() -> void;
 
-    auto updateHeadingByIMU() -> void {}
+    auto updateHeadingByIMU() -> void;
 
-  public:
+   public:
     const std::array<char, 4> cardinalPoints = {'N', 'E', 'S', 'W'};
 
-  private:
+   private:
     std::unique_ptr<webots::InertialUnit> inertialUnit_;
-    std::pair<int, int> position_; // row, column
+    std::pair<int, int> position_;  // row, column
     int headingIndex_;
 };
 
-#endif // LOCALISATION_HPP_
+}  // namespace mtrn4110
+
+#endif  // LOCALISATION_HPP_
