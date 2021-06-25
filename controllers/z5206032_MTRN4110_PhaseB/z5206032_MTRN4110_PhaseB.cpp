@@ -64,8 +64,7 @@ auto main(int argc, char **argv) -> int {
     auto timer = mtrn4110::Timer(robot);
 
     // Instantiate our task controller class.
-    auto taskControl = std::move(mtrn4110::TaskControl(robot));
-    // mtrn4110::TaskControl taskControl(robot);
+    auto taskControl = mtrn4110::TaskControl(robot);
 
     // Spin threads.
     auto t1 = std::thread(simulationSteps, std::ref(robot));

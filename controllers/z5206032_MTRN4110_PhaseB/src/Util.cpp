@@ -4,8 +4,6 @@
 
 namespace mtrn4110 {
 
-auto printConsole(std::string str) -> void {
-    std::cout << "[z5206032_MTRN4110_PhaseA] " << str << std::endl;
-}
+auto cout(T t) -> void { std::cout << "[z5206032_MTRN4110_PhaseA] " << t << std::endl; }
 
 }  // namespace mtrn4110

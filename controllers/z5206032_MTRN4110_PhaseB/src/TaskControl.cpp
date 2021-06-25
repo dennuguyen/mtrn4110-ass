@@ -46,7 +46,7 @@ auto TaskControl::displayMessage() const -> void {
             ss << ", ";
         }
     }
-    printConsole(ss.str());
+    mtrn4110::cout(ss.str());
 }
 
 auto TaskControl::initcsv() const -> void {
