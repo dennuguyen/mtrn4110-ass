@@ -10,7 +10,7 @@ namespace mtrn4110 {
 
 DrivePlan::DrivePlan(std::string const& fileName) {
     // Read motion plan file.
-    mtrn4110::cout("Reading in motion plan from " + fileName + "...");
+    print("Reading in motion plan from " + fileName + "...");
     auto motionPlanFile = std::fstream(fileName.c_str(), std::fstream::in);
     if (motionPlanFile.good() == false) {
         throw std::runtime_error("ERROR: No such file.");
@@ -18,19 +18,19 @@ DrivePlan::DrivePlan(std::string const& fileName) {
 
     // Get motion plan assuming it is valid.
     motionPlanFile >> motionPlan_;
-    mtrn4110::cout("Motion Plan: " + motionPlan_);
+    print("Motion Plan: " + motionPlan_);
 
     std::copy(motionPlan_.begin() + 3, motionPlan_.end(), std::back_inserter(motionSequence_));
-    mtrn4110::cout("Motion plan read in!");
+    print("Motion plan read in!");
 
-    mtrn4110::cout("Executing motion plan...");
+    print("Executing motion plan...");
 }
 
 DrivePlan::DrivePlan(DrivePlan&& drivePlan) noexcept
     : motionPlan_(std::move(drivePlan.motionPlan_)),
       motionSequence_(std::move(drivePlan.motionSequence_)) {}
 
-DrivePlan::~DrivePlan() { mtrn4110::cout("Motion plan executed!"); }
+DrivePlan::~DrivePlan() { print("Motion plan executed!"); }
 
 auto const DrivePlan::getMotionPlan() const -> std::string { return motionPlan_; }
 
@@ -56,7 +56,7 @@ auto DrivePlan::displayMotionSequence() const -> void {
     for (auto& sequence : motionSequence_) {
         ss << sequence;
     }
-    mtrn4110::cout(ss.str());
+    print(ss.str());
 }
 
 }  // namespace mtrn4110

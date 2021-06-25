@@ -5,8 +5,7 @@
 
 namespace mtrn4110 {
 
-template <typename T>
-auto cout(T) -> void;
+auto print(std::string const&) -> void;
 
 }  // namespace mtrn4110
 
