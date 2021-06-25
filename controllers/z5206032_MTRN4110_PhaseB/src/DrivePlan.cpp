@@ -8,7 +8,7 @@
 
 namespace mtrn4110 {
 
-DrivePlan::DrivePlan(std::string fileName) {
+DrivePlan::DrivePlan(std::string const& fileName) {
     // Read motion plan file.
     printConsole("Reading in motion plan from " + fileName + "...");
     auto motionPlanFile = std::fstream(fileName.c_str(), std::fstream::in);

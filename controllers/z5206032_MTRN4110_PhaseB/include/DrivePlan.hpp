@@ -8,7 +8,7 @@ namespace mtrn4110 {
 
 class DrivePlan {
    public:
-    explicit DrivePlan(std::string);
+    explicit DrivePlan(std::string const&);
     explicit DrivePlan(DrivePlan const&) = delete;
     DrivePlan(DrivePlan&&) noexcept;
     ~DrivePlan();
