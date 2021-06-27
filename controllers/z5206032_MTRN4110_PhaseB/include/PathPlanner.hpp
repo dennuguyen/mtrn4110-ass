@@ -17,8 +17,8 @@ class PathPlanner {
     ~PathPlanner() = default;
 
    private:
-    auto readMapFile(std::string const &) -> void;
-    auto buildGraph() -> void;
+    auto readMapFile(std::string const &) const -> std::string const;
+    auto buildGraph(std::string const &map) -> void;
     auto buildDirectedGraph() -> void;
     auto searchPaths() -> void;
     auto writePathPlan() const -> void;
