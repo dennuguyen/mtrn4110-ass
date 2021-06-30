@@ -142,11 +142,9 @@ auto PathPlanner::buildDirectedGraph() noexcept -> void {
 }
 
 auto PathPlanner::searchPaths() noexcept -> void {
-    // Initialise path.
     auto path = std::vector<std::pair<int, int>>();
     path.emplace_back(start_);
 
-    // Initialise path stack.
     auto pathStack = std::stack<std::tuple<std::pair<int, int>, std::vector<std::pair<int, int>>,
                                            int>>();  // [(point, path, numberTurns)]
     pathStack.push({start_, path, 0});
@@ -206,10 +204,12 @@ auto PathPlanner::printPaths() const noexcept -> void {
             auto const col = 4 * position.first + 2;
             auto const line = 2 * position.second + 1;
 
+            // Do no write over this.
             if (position == start_) {
                 continue;
             }
 
+            // Write path weighting into map.
             auto const index = std::to_string(graph_.at(position).first);
             tempMap[line][col] = index[0];
             tempMap[line][col + 1] = index.size() > 1 ? index[1] : ' ';
