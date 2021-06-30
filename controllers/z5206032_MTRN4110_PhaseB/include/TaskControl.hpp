@@ -18,16 +18,16 @@ class TaskControl {
     explicit TaskControl(TaskControl const &) = delete;
     TaskControl(TaskControl &&) noexcept;
     ~TaskControl() = default;
-    auto tick() -> void;
-    auto acquireLock() -> void;
-    auto releaseLock() -> void;
-    auto const isLockBusy() const -> bool;
-    auto displayMessage() const -> void;
+    auto tick() noexcept -> void;
+    auto acquireLock() noexcept -> void;
+    auto releaseLock() noexcept -> void;
+    auto const isLockBusy() const noexcept -> bool;
+    auto displayMessage() const noexcept -> void;
     auto initcsv() const -> void;
     auto writeMessage2csv() const -> void;
 
    private:
-    auto const getMessage() const -> std::vector<std::pair<std::string, std::string>>;
+    auto const getMessage() noexcept const -> std::vector<std::pair<std::string, std::string>>;
 
    public:
     static constexpr auto drivePlanPath = "../../MotionPlan.txt";

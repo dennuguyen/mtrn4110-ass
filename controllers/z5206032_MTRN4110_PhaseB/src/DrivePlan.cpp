@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 
 #include "Util.hpp"
 
@@ -13,7 +14,7 @@ DrivePlan::DrivePlan(std::string const& fileName) {
     // print("Reading in motion plan from " + fileName + "...");
     auto motionPlanFile = std::fstream(fileName.c_str(), std::fstream::in);
     if (motionPlanFile.good() == false) {
-        throw std::runtime_error("ERROR: No such file.");
+        throw std::runtime_error("Could not open file.");
     }
 
     // Get motion plan assuming it is valid.
@@ -32,9 +33,9 @@ DrivePlan::DrivePlan(DrivePlan&& drivePlan) noexcept
 
 DrivePlan::~DrivePlan() { print("Motion plan executed!"); }
 
-auto DrivePlan::getMotionPlan() const -> std::string { return motionPlan_; }
+auto DrivePlan::getMotionPlan() const noexcept -> std::string { return motionPlan_; }
 
-auto DrivePlan::nextSequence() -> char {
+auto DrivePlan::nextSequence() noexcept -> char {
     if (motionSequence_.empty() == true) {
         return 'E';
     }
@@ -44,14 +45,14 @@ auto DrivePlan::nextSequence() -> char {
     return sequence;
 }
 
-auto DrivePlan::getInitialLocalisation() const -> std::pair<int, int> {
+auto DrivePlan::getInitialLocalisation() const noexcept -> std::pair<int, int> {
     return {static_cast<int>(motionPlan_[0]),   // row
             static_cast<int>(motionPlan_[1])};  // column
 }
 
-auto DrivePlan::getInitialHeading() const -> char { return motionPlan_[2]; }
+auto DrivePlan::getInitialHeading() const noexcept -> char { return motionPlan_[2]; }
 
-auto DrivePlan::displayMotionSequence() const -> void {
+auto DrivePlan::displayMotionSequence() const noexcept -> void {
     auto ss = std::stringstream();
     for (auto& sequence : motionSequence_) {
         ss << sequence;

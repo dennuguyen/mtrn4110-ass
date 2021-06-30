@@ -20,13 +20,13 @@ WallPerception::WallPerception(webots::Robot &robot) : lidar_(robot.getLidar("li
 WallPerception::WallPerception(WallPerception &&wallPerception) noexcept
     : lidar_(std::move(wallPerception.lidar_)), walls_(std::move(wallPerception.walls_)) {}
 
-auto const WallPerception::getLeftWall() const -> char { return walls_[left_]; }
+auto const WallPerception::getLeftWall() const noexcept -> char { return walls_[left_]; }
 
-auto const WallPerception::getFrontWall() const -> char { return walls_[front_]; }
+auto const WallPerception::getFrontWall() const noexcept -> char { return walls_[front_]; }
 
-auto const WallPerception::getRightWall() const -> char { return walls_[right_]; }
+auto const WallPerception::getRightWall() const noexcept -> char { return walls_[right_]; }
 
-auto const WallPerception::tick() -> int {
+auto const WallPerception::tick() noexcept -> int {
     auto const pointCloud = lidar_->getPointCloud();
     if (pointCloud == nullptr) {
         return -1;
@@ -45,7 +45,7 @@ auto const WallPerception::tick() -> int {
     // range.
     auto wallDetected = std::vector<bool>();
     wallDetected.reserve(numberPoints);
-    for (auto const& point : pointDistances) {
+    for (auto const &point : pointDistances) {
         wallDetected.push_back(point < wallDistance);
     }
 

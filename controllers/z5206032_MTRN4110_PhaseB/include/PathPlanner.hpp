@@ -15,11 +15,11 @@ class PathPlanner {
     ~PathPlanner() = default;
 
    private:
-    auto readMapFile(std::string const &) const -> std::vector<std::string> const;
+    auto readMapFile(std::string const &) const -> std::vector<std::string>;
     auto buildGraph(std::vector<std::string> const &map) -> void;
-    auto buildDirectedGraph() -> void;
-    auto searchPaths() -> void;
-    auto writePathPlan() const -> void;
+    auto buildDirectedGraph() noexcept -> void;
+    auto searchPaths() noexcept -> void;
+    auto writePathPlan() const noexcept -> void;
 
    public:
     static auto constexpr unvisited = -1;

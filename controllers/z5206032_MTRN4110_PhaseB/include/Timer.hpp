@@ -12,9 +12,9 @@ class Timer {
     explicit Timer(webots::Robot&);
     ~Timer() = default;
 
-    auto time(double expiry) -> void;
-    auto const expired() const -> bool;
-    friend auto operator<<(std::ostream&, Timer const&) -> std::ostream&;
+    auto time(double expiry) noexcept -> void;
+    auto const expired() const noexcept -> bool;
+    friend auto operator<<(std::ostream&, Timer const&) noexcept -> std::ostream&;
 
    private:
     std::shared_ptr<webots::Robot> robot_;

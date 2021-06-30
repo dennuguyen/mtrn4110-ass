@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
+#include <stdexcept>
 
 namespace mtrn4110 {
 
@@ -29,15 +30,15 @@ TaskControl::TaskControl(TaskControl &&taskControl) noexcept
       step_(std::move(taskControl.step_)),
       bigLock_(std::move(taskControl.bigLock_)) {}
 
-auto TaskControl::tick() -> void { step_++; }
+auto TaskControl::tick() noexcept -> void { step_++; }
 
-auto TaskControl::acquireLock() -> void { bigLock_ = true; }
+auto TaskControl::acquireLock() noexcept -> void { bigLock_ = true; }
 
-auto TaskControl::releaseLock() -> void { bigLock_ = false; }
+auto TaskControl::releaseLock() noexcept -> void { bigLock_ = false; }
 
-auto const TaskControl::isLockBusy() const -> bool { return bigLock_; }
+auto const TaskControl::isLockBusy() const noexcept -> bool { return bigLock_; }
 
-auto TaskControl::displayMessage() const -> void {
+auto TaskControl::displayMessage() const noexcept -> void {
     auto ss = std::stringstream();
     auto const &msg = getMessage();
     for (auto const &cell : msg) {
@@ -51,6 +52,10 @@ auto TaskControl::displayMessage() const -> void {
 
 auto TaskControl::initcsv() const -> void {
     auto csv = std::ofstream(csvPath, std::ios::trunc);
+    if (csv.good() == false) {
+        throw std::runtime_error("Could not open file.");
+    }
+
     auto const &msg = getMessage();
 
     // Overwrite file with headers.
@@ -63,6 +68,10 @@ auto TaskControl::initcsv() const -> void {
 
 auto TaskControl::writeMessage2csv() const -> void {
     auto csv = std::ofstream(csvPath, std::ios::app);
+    if (csv.good() == false) {
+        throw std::runtime_error("Could not open file.");
+    }
+
     auto const &msg = getMessage();
 
     // Append message to CSV.
@@ -73,7 +82,8 @@ auto TaskControl::writeMessage2csv() const -> void {
     csv.close();
 }
 
-auto const TaskControl::getMessage() const -> std::vector<std::pair<std::string, std::string>> {
+auto const TaskControl::getMessage() const noexcept
+    -> std::vector<std::pair<std::string, std::string>> {
     auto msg = std::vector<std::pair<std::string, std::string>>();
     auto ss = std::stringstream();
     ss << std::setw(3) << std::setfill('0') << step_;

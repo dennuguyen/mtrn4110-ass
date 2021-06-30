@@ -14,11 +14,11 @@ class Localisation {
     explicit Localisation(Localisation const &) = delete;
     Localisation(Localisation &&) noexcept;
     ~Localisation() = default;
-    auto const getRow() const -> int;
-    auto const getColumn() const -> int;
-    auto const getHeading() const -> char;
+    auto const getRow() const noexcept -> int;
+    auto const getColumn() const noexcept -> int;
+    auto const getHeading() const noexcept -> char;
     auto tick(char instruction) -> void;
-    auto const getYaw() const -> double;
+    auto const getYaw() const noexcept -> double;
 
    private:
     // Updates the heading using information given by motion plan sequence.

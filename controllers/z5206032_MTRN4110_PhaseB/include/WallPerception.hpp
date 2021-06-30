@@ -14,10 +14,10 @@ class WallPerception {
     explicit WallPerception(WallPerception const &) = delete;
     WallPerception(WallPerception &&) noexcept;
     ~WallPerception() = default;
-    auto const getLeftWall() const -> char;
-    auto const getFrontWall() const -> char;
-    auto const getRightWall() const -> char;
-    auto const tick() -> int;
+    auto const getLeftWall() const noexcept -> char;
+    auto const getFrontWall() const noexcept -> char;
+    auto const getRightWall() const noexcept -> char;
+    auto const tick() noexcept -> int;
 
    public:
     static auto constexpr wallDistance = 0.085;  // Distance from centre of cell to wall.

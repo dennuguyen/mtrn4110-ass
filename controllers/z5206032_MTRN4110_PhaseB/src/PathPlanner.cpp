@@ -6,6 +6,7 @@
 #include <queue>
 #include <sstream>
 #include <stack>
+#include <stdexcept>
 #include <vector>
 
 #include "Util.hpp"
@@ -26,11 +27,11 @@ PathPlanner::PathPlanner(PathPlanner&& pathPlanner) noexcept
       start_(pathPlanner.start_),
       end_(pathPlanner.end_) {}
 
-auto PathPlanner::readMapFile(std::string const& fileName) const -> std::vector<std::string> const {
+auto PathPlanner::readMapFile(std::string const& fileName) const -> std::vector<std::string> {
     print("Reading in map from " + fileName + "...");
     auto mapFile = std::ifstream(fileName.data());
     if (mapFile.good() == false) {
-        throw std::runtime_error("ERROR: No such file.");
+        throw std::runtime_error("Could not open file.");
     }
 
     auto line = std::string();
@@ -39,10 +40,10 @@ auto PathPlanner::readMapFile(std::string const& fileName) const -> std::vector<
         map.push_back(line);
     }
     if (mapFile.bad() == true) {
-        throw std::runtime_error("ERROR: Could not read.");
+        throw std::runtime_error("I/O error while reading.");
     }
     if (mapFile.eof() == false) {
-        throw std::runtime_error("ERROR: Did not reach EOF.");
+        throw std::runtime_error("Did not reach EOF.");
     }
 
     print("Map read in!");
@@ -52,7 +53,7 @@ auto PathPlanner::readMapFile(std::string const& fileName) const -> std::vector<
 
 auto PathPlanner::buildGraph(std::vector<std::string> const& map) -> void {
     if (map.empty() == true) {
-        throw std::runtime_error("ERROR: Cannot build graph from empty map.");
+        throw std::runtime_error("Cannot build graph from empty map.");
     }
 
     for (auto line = 0; line < static_cast<int>(map.size()); line++) {
@@ -96,7 +97,7 @@ auto PathPlanner::buildGraph(std::vector<std::string> const& map) -> void {
     }
 }
 
-auto PathPlanner::buildDirectedGraph() -> void {
+auto PathPlanner::buildDirectedGraph() noexcept -> void {
     directedGraph_.at(start_).first = 0;
 
     auto pathQueue = std::queue<std::pair<int, int>>();
@@ -122,7 +123,7 @@ auto PathPlanner::buildDirectedGraph() -> void {
     }
 }
 
-auto PathPlanner::searchPaths() -> void {
+auto PathPlanner::searchPaths() noexcept -> void {
     // Initialisepath.
     auto path = std::vector<std::pair<int, int>>();
     path.emplace_back(start_);
@@ -154,7 +155,7 @@ auto PathPlanner::searchPaths() -> void {
     }
 }
 
-auto PathPlanner::writePathPlan() const -> void {
+auto PathPlanner::writePathPlan() const noexcept -> void {
     for (auto const& i : paths_) {
         for (auto const& j : i) {
             std::cout << "(" << j.second << ", " << j.first << "), ";

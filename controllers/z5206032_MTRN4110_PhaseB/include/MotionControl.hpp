@@ -19,8 +19,10 @@ class MotionControl {
     MotionControl(MotionControl &&) noexcept;
     ~MotionControl() = default;
     auto tick(char) -> void;
-    auto setGain(std::tuple<double, double, double>, std::tuple<double, double, double>) -> void;
-    auto setPoint(std::tuple<double, double> left, std::tuple<double, double> right) -> void;
+    auto setGain(std::tuple<double, double, double>, std::tuple<double, double, double>) noexcept
+        -> void;
+    auto setPoint(std::tuple<double, double> left, std::tuple<double, double> right) noexcept
+        -> void;
 
    public:
     static constexpr auto maxMotorSpeed = 6.28;

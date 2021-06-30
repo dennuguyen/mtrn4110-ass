@@ -1,5 +1,7 @@
 #include "MotionControl.hpp"
 
+#include <stdexcept>
+
 #include "Util.hpp"
 
 namespace mtrn4110 {
@@ -45,18 +47,18 @@ auto MotionControl::tick(char instruction) -> void {
                      {idealSetPosition2NextCell, 0.4 * maxMotorSpeed});
             break;
         default:
-            std::cerr << "WARNING: Invalid instruction in motion sequence." << std::endl;
+            throw std::runtime_error("Invalid instruction in motion sequence.");
     }
 }
 
 auto MotionControl::setGain(std::tuple<double, double, double> left,
-                            std::tuple<double, double, double> right) -> void {
+                            std::tuple<double, double, double> right) noexcept -> void {
     leftMotor_->setControlPID(std::get<0>(left), std::get<1>(left), std::get<2>(left));
     rightMotor_->setControlPID(std::get<0>(right), std::get<1>(right), std::get<2>(right));
 }
 
-auto MotionControl::setPoint(std::tuple<double, double> left, std::tuple<double, double> right)
-    -> void {
+auto MotionControl::setPoint(std::tuple<double, double> left,
+                             std::tuple<double, double> right) noexcept -> void {
     auto leftInitial = leftPositionSensor_->getValue();
     auto rightInitial = rightPositionSensor_->getValue();
     leftMotor_->setPosition(leftInitial + std::get<0>(left));

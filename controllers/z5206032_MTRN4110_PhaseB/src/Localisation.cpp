@@ -1,5 +1,7 @@
 #include "Localisation.hpp"
 
+#include <stdexcept>
+
 namespace mtrn4110 {
 
 Localisation::Localisation(webots::Robot &robot, std::pair<int, int> position, char heading)
@@ -32,15 +34,19 @@ Localisation::Localisation(Localisation &&localisation) noexcept
       position_(std::move(localisation.position_)),
       headingIndex_(std::move(localisation.headingIndex_)) {}
 
-auto const Localisation::getRow() const -> int { return position_.first; }
+auto const Localisation::getRow() const noexcept -> int { return position_.first; }
 
-auto const Localisation::getColumn() const -> int { return position_.second; }
+auto const Localisation::getColumn() const noexcept -> int { return position_.second; }
 
-auto const Localisation::getHeading() const -> char { return cardinalPoints[headingIndex_]; }
+auto const Localisation::getHeading() const noexcept -> char {
+    return cardinalPoints[headingIndex_];
+}
 
 auto Localisation::tick(char instruction) -> void { updateHeadingByPlan(instruction); }
 
-auto const Localisation::getYaw() const -> double { return inertialUnit_->getRollPitchYaw()[2]; }
+auto const Localisation::getYaw() const noexcept -> double {
+    return inertialUnit_->getRollPitchYaw()[2];
+}
 
 auto Localisation::updateHeadingByPlan(char instruction) -> void {
     switch (instruction) {
@@ -60,7 +66,7 @@ auto Localisation::updateHeadingByPlan(char instruction) -> void {
             }
             break;
         default:
-            std::cerr << "WARNING: Invalid character in motion plan." << std::endl;
+            throw std::runtime_error("Invalid character in motion plan.");
     }
 }
 
@@ -79,7 +85,7 @@ auto Localisation::updatePositionByPlan() -> void {
             position_.second--;
             break;
         default:
-            std::cerr << "WARNING: Invalid character for cardinal direction." << std::endl;
+            throw std::runtime_error("Invalid character for cardinal direction.");
     }
 }
 
