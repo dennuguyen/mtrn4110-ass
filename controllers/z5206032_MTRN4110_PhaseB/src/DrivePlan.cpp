@@ -21,17 +21,17 @@ DrivePlan::DrivePlan(std::string const& fileName) {
     motionPlanFile >> motionPlan_;
     // print("Motion Plan: " + motionPlan_);
 
-    std::copy(motionPlan_.begin() + 3, motionPlan_.end(), std::back_inserter(motionSequence_));
-    // print("Motion plan read in!");
-
-    // print("Executing motion plan...");
-
     if (motionPlanFile.bad() == true) {
         throw std::runtime_error("I/O error while reading.");
     }
     if (motionPlanFile.eof() == false) {
         throw std::runtime_error("Did not reach EOF.");
     }
+
+    std::copy(motionPlan_.begin() + 3, motionPlan_.end(), std::back_inserter(motionSequence_));
+    // print("Motion plan read in!");
+
+    // print("Executing motion plan...");
 }
 
 DrivePlan::DrivePlan(DrivePlan&& drivePlan) noexcept

@@ -159,7 +159,7 @@ auto PathPlanner::searchPaths() noexcept -> void {
 auto PathPlanner::writePathPlan() const noexcept -> void {
     for (auto const& i : paths_) {
         for (auto const& j : i) {
-            std::cout << "(" << j.second << ", " << j.first << "), ";
+            std::cout << "(" << j.second << "," << j.first << ") ";
         }
         std::cout << std::endl;
     }

@@ -17,7 +17,7 @@ TaskControl::TaskControl(webots::Robot &robot)
     initcsv();
 
     // Display the initial state.
-    displayMessage();
+    // displayMessage();
     writeMessage2csv();
 }
 
@@ -67,9 +67,6 @@ auto TaskControl::initcsv() const -> void {
     if (csv.bad() == true) {
         throw std::runtime_error("I/O error while reading.");
     }
-    if (csv.eof() == false) {
-        throw std::runtime_error("Did not reach EOF.");
-    }
 }
 
 auto TaskControl::writeMessage2csv() const -> void {
@@ -88,9 +85,6 @@ auto TaskControl::writeMessage2csv() const -> void {
 
     if (csv.bad() == true) {
         throw std::runtime_error("I/O error while reading.");
-    }
-    if (csv.eof() == false) {
-        throw std::runtime_error("Did not reach EOF.");
     }
 }
 
