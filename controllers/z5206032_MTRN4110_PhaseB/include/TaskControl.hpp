@@ -21,13 +21,13 @@ class TaskControl {
     auto tick() noexcept -> void;
     auto acquireLock() noexcept -> void;
     auto releaseLock() noexcept -> void;
-    auto const isLockBusy() const noexcept -> bool;
+    auto isLockBusy() const noexcept -> bool;
     auto displayMessage() const noexcept -> void;
     auto initcsv() const -> void;
     auto writeMessage2csv() const -> void;
 
    private:
-    auto const getMessage() noexcept const -> std::vector<std::pair<std::string, std::string>>;
+    auto getMessage() const noexcept -> std::vector<std::pair<std::string, std::string>>;
 
    public:
     static constexpr auto drivePlanPath = "../../MotionPlan.txt";

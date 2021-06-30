@@ -94,8 +94,7 @@ auto TaskControl::writeMessage2csv() const -> void {
     }
 }
 
-auto const TaskControl::getMessage() const noexcept
-    -> std::vector<std::pair<std::string, std::string>> {
+auto TaskControl::getMessage() const noexcept -> std::vector<std::pair<std::string, std::string>> {
     auto msg = std::vector<std::pair<std::string, std::string>>();
     auto ss = std::stringstream();
     ss << std::setw(3) << std::setfill('0') << step_;
