@@ -14,20 +14,20 @@
 namespace mtrn4110 {
 
 PathPlanner::PathPlanner(std::string const& fileName) {
-    auto const& map = readMapFile(fileName);
-    buildGraph(map);
+    readMapFile(fileName);
+    buildGraph();
     buildDirectedGraph();
     searchPaths();
-    writePathPlan();
+    printPaths();
 }
 
 PathPlanner::PathPlanner(PathPlanner&& pathPlanner) noexcept
-    : directedGraph_(pathPlanner.directedGraph_),
+    : graph_(pathPlanner.graph_),
       paths_(pathPlanner.paths_),
       start_(pathPlanner.start_),
       end_(pathPlanner.end_) {}
 
-auto PathPlanner::readMapFile(std::string const& fileName) const -> std::vector<std::string> {
+auto PathPlanner::readMapFile(std::string const& fileName) -> void {
     print("Reading in map from " + fileName + "...");
     auto mapFile = std::ifstream(fileName.data());
     if (mapFile.good() == false) {
@@ -35,9 +35,8 @@ auto PathPlanner::readMapFile(std::string const& fileName) const -> std::vector<
     }
 
     auto line = std::string();
-    auto map = std::vector<std::string>();
     while (std::getline(mapFile, line)) {
-        map.push_back(line);
+        map_.push_back(line);
     }
 
     if (mapFile.bad() == true) {
@@ -48,49 +47,49 @@ auto PathPlanner::readMapFile(std::string const& fileName) const -> std::vector<
     }
 
     print("Map read in!");
-
-    return map;
 }
 
-auto PathPlanner::buildGraph(std::vector<std::string> const& map) -> void {
-    if (map.empty() == true) {
+auto PathPlanner::buildGraph() -> void {
+    if (map_.empty() == true) {
         throw std::runtime_error("Cannot build graph from empty map.");
     }
 
-    for (auto line = 0; line < static_cast<int>(map.size()); line++) {
-        for (auto col = 0; col < static_cast<int>(map.at(0).size()); col++) {
+    auto const& maxLine = static_cast<int>(map_.size());
+    auto const& maxColumn = static_cast<int>(map_.at(0).size());
+    for (auto line = 0; line < maxLine; line++) {
+        for (auto col = 0; col < maxColumn; col++) {
             // At centre of tile.
             if ((col + 2) % 4 == 0 && line % 2 != 0) {
-                auto x = (col - 2) / 4;
-                auto y = (line - 1) / 2;
+                auto const x = (col - 2) / 4;
+                auto const y = (line - 1) / 2;
 
                 // Check start position.
-                if (map[line][col] == 'v') {
+                if (map_[line][col] == 'v') {
                     start_ = {x, y};
                 }
 
                 // Check end position.
-                if (map[line][col] == 'x') {
+                if (map_[line][col] == 'x') {
                     end_ = {x, y};
                 }
 
                 // Check vertical wall to right of centre of tile.
-                if (col + 2 < static_cast<int>(map.at(0).size())) {
-                    if (map[line][col + 2] == ' ') {
-                        directedGraph_[{x, y}].first = unvisited;
-                        directedGraph_[{x, y}].second.emplace_back(x + 1, y);
-                        directedGraph_[{x + 1, y}].first = unvisited;
-                        directedGraph_[{x + 1, y}].second.emplace_back(x, y);
+                if (col + 2 < maxColumn) {
+                    if (map_[line][col + 2] == ' ') {
+                        graph_[{x, y}].first = unvisited;
+                        graph_[{x, y}].second.emplace_back(x + 1, y);
+                        graph_[{x + 1, y}].first = unvisited;
+                        graph_[{x + 1, y}].second.emplace_back(x, y);
                     }
                 }
 
                 // Check horizontal wall below centre of tile.
-                if (line + 1 < static_cast<int>(map.size())) {
-                    if (map[line + 1][col] == ' ') {
-                        directedGraph_[{x, y}].first = unvisited;
-                        directedGraph_[{x, y}].second.emplace_back(x, y + 1);
-                        directedGraph_[{x, y + 1}].first = unvisited;
-                        directedGraph_[{x, y + 1}].second.emplace_back(x, y);
+                if (line + 1 < maxLine) {
+                    if (map_[line + 1][col] == ' ') {
+                        graph_[{x, y}].first = unvisited;
+                        graph_[{x, y}].second.emplace_back(x, y + 1);
+                        graph_[{x, y + 1}].first = unvisited;
+                        graph_[{x, y + 1}].second.emplace_back(x, y);
                     }
                 }
             }
@@ -99,7 +98,7 @@ auto PathPlanner::buildGraph(std::vector<std::string> const& map) -> void {
 }
 
 auto PathPlanner::buildDirectedGraph() noexcept -> void {
-    directedGraph_.at(start_).first = 0;
+    graph_.at(start_).first = 0;
 
     auto pathQueue = std::queue<std::pair<int, int>>();
     pathQueue.push(start_);
@@ -113,11 +112,10 @@ auto PathPlanner::buildDirectedGraph() noexcept -> void {
             break;
         }
 
-        for (auto const& adjacentPosition : directedGraph_.at(currentPosition).second) {
+        for (auto const& adjacentPosition : graph_.at(currentPosition).second) {
             // Give unvisited words a distance from source.
-            if (directedGraph_.at(adjacentPosition).first == unvisited) {
-                directedGraph_.at(adjacentPosition).first =
-                    directedGraph_.at(currentPosition).first + 1;
+            if (graph_.at(adjacentPosition).first == unvisited) {
+                graph_.at(adjacentPosition).first = graph_.at(currentPosition).first + 1;
                 pathQueue.push(adjacentPosition);
             }
         }
@@ -125,7 +123,7 @@ auto PathPlanner::buildDirectedGraph() noexcept -> void {
 }
 
 auto PathPlanner::searchPaths() noexcept -> void {
-    // Initialisepath.
+    // Initialise path.
     auto path = std::vector<std::pair<int, int>>();
     path.emplace_back(start_);
 
@@ -144,16 +142,39 @@ auto PathPlanner::searchPaths() noexcept -> void {
             paths_.push_back(path);
         }
 
-        for (auto const& adjacentPosition : directedGraph_.at(currentPosition).second) {
+        for (auto const& adjacentPosition : graph_.at(currentPosition).second) {
             // Check for direction of graph.
-            if (directedGraph_.at(adjacentPosition).first >
-                directedGraph_.at(currentPosition).first) {
+            if (graph_.at(adjacentPosition).first > graph_.at(currentPosition).first) {
                 auto newPath = std::vector<std::pair<int, int>>(path);
                 newPath.emplace_back(adjacentPosition);
                 pathStack.push(std::make_pair(adjacentPosition, newPath));
             }
         }
     }
+}
+
+auto PathPlanner::printPaths() const noexcept -> void {
+    print("Finding shortest paths...");
+
+    for (auto i = 0; i < static_cast<int>(paths_.size()); i++) {
+        print("Path - " + std::to_string(i) + ":");
+
+        auto const& path = paths_.at(i);
+        auto tempMap = map_;
+
+        for (auto const& position : path) {
+            auto const col = 4 * position.first + 2;
+            auto const line = 2 * position.second + 1;
+            auto const index = std::to_string(graph_.at(position).first);
+            tempMap[line][col] = index[0];
+            tempMap[line][col + 1] = index.size() > 1 ? index[1] : ' ';
+        }
+
+        for (auto const& line : tempMap) {
+            print(line);
+        }
+    }
+    print(std::to_string(paths_.size()) + " shortest paths found!");
 }
 
 auto PathPlanner::writePathPlan() const noexcept -> void {
