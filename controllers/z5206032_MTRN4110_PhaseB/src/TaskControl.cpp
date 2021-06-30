@@ -63,7 +63,13 @@ auto TaskControl::initcsv() const -> void {
         csv << cell.first << ", ";
     }
     csv << std::endl;
-    csv.close();
+
+    if (csv.bad() == true) {
+        throw std::runtime_error("I/O error while reading.");
+    }
+    if (csv.eof() == false) {
+        throw std::runtime_error("Did not reach EOF.");
+    }
 }
 
 auto TaskControl::writeMessage2csv() const -> void {
@@ -79,7 +85,13 @@ auto TaskControl::writeMessage2csv() const -> void {
         csv << cell.second << ", ";
     }
     csv << std::endl;
-    csv.close();
+
+    if (csv.bad() == true) {
+        throw std::runtime_error("I/O error while reading.");
+    }
+    if (csv.eof() == false) {
+        throw std::runtime_error("Did not reach EOF.");
+    }
 }
 
 auto const TaskControl::getMessage() const noexcept

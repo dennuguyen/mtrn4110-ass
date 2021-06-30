@@ -25,6 +25,13 @@ DrivePlan::DrivePlan(std::string const& fileName) {
     // print("Motion plan read in!");
 
     // print("Executing motion plan...");
+
+    if (motionPlanFile.bad() == true) {
+        throw std::runtime_error("I/O error while reading.");
+    }
+    if (motionPlanFile.eof() == false) {
+        throw std::runtime_error("Did not reach EOF.");
+    }
 }
 
 DrivePlan::DrivePlan(DrivePlan&& drivePlan) noexcept

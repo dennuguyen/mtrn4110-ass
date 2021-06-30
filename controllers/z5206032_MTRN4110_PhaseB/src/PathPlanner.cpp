@@ -39,6 +39,7 @@ auto PathPlanner::readMapFile(std::string const& fileName) const -> std::vector<
     while (std::getline(mapFile, line)) {
         map.push_back(line);
     }
+
     if (mapFile.bad() == true) {
         throw std::runtime_error("I/O error while reading.");
     }
