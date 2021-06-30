@@ -63,14 +63,21 @@ auto PathPlanner::buildGraph() -> void {
                 auto const x = (col - 2) / 4;
                 auto const y = (line - 1) / 2;
 
-                // Check start position.
-                if (map_[line][col] == 'v') {
-                    start_ = {x, y};
-                }
-
-                // Check end position.
-                if (map_[line][col] == 'x') {
-                    end_ = {x, y};
+                // Check start and end position.
+                switch (map_[line][col]) {
+                    case ' ':
+                        break;
+                    case 'x':
+                        end_ = {x, y};
+                        break;
+                    case 'v':
+                    case '<':
+                    case '>':
+                    case '^':
+                        start_ = {x, y};
+                        break;
+                    default:
+                        throw std::runtime_error("Invalid map character");
                 }
 
                 // Check vertical wall to right of centre of tile.
@@ -98,17 +105,17 @@ auto PathPlanner::buildGraph() -> void {
 }
 
 auto PathPlanner::buildDirectedGraph() noexcept -> void {
-    graph_.at(start_).first = 0;
+    graph_.at(end_).first = 0;
 
     auto pathQueue = std::queue<std::pair<int, int>>();
-    pathQueue.push(start_);
+    pathQueue.push(end_);
 
     while (pathQueue.empty() == false) {
         auto const currentPosition = pathQueue.front();
         pathQueue.pop();
 
         // Found the destination.
-        if (currentPosition == end_) {
+        if (currentPosition == start_) {
             break;
         }
 
@@ -144,7 +151,7 @@ auto PathPlanner::searchPaths() noexcept -> void {
 
         for (auto const& adjacentPosition : graph_.at(currentPosition).second) {
             // Check for direction of graph.
-            if (graph_.at(adjacentPosition).first > graph_.at(currentPosition).first) {
+            if (graph_.at(adjacentPosition).first <= graph_.at(currentPosition).first) {
                 auto newPath = std::vector<std::pair<int, int>>(path);
                 newPath.emplace_back(adjacentPosition);
                 pathStack.push(std::make_pair(adjacentPosition, newPath));
@@ -157,7 +164,7 @@ auto PathPlanner::printPaths() const noexcept -> void {
     print("Finding shortest paths...");
 
     for (auto i = 0; i < static_cast<int>(paths_.size()); i++) {
-        print("Path - " + std::to_string(i) + ":");
+        print("Path - " + std::to_string(i + 1) + ":");
 
         auto const& path = paths_.at(i);
         auto tempMap = map_;
@@ -165,6 +172,11 @@ auto PathPlanner::printPaths() const noexcept -> void {
         for (auto const& position : path) {
             auto const col = 4 * position.first + 2;
             auto const line = 2 * position.second + 1;
+
+            if (position == start_) {
+                continue;
+            }
+
             auto const index = std::to_string(graph_.at(position).first);
             tempMap[line][col] = index[0];
             tempMap[line][col + 1] = index.size() > 1 ? index[1] : ' ';
