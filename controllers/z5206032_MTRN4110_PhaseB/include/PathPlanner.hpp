@@ -20,6 +20,7 @@ class PathPlanner {
     auto buildDirectedGraph() noexcept -> void;
     auto searchPaths() noexcept -> void;
     auto printPaths() const noexcept -> void;
+    auto printLeastTurnsPath() const noexcept -> void;
     auto writePathPlan() const noexcept -> void;
 
    public:
@@ -27,10 +28,12 @@ class PathPlanner {
 
    private:
     std::vector<std::string> map_;
-    std::map<std::pair<int, int>, std::pair<int, std::vector<std::pair<int, int>>>> graph_;
-    std::vector<std::vector<std::pair<int, int>>> paths_;
+    std::map<std::pair<int, int>, std::pair<int, std::vector<std::pair<int, int>>>>
+        graph_;  // {point, (visitWeight, [point])}
+    std::vector<std::pair<std::vector<std::pair<int, int>>, int>> paths_;  // [(path, numberTurns)]
     std::pair<int, int> start_;
     std::pair<int, int> end_;
+    int heading_;  // N = 0, E = 1, S = 2, W = 3
 };
 
 }  // namespace mtrn4110

@@ -1,11 +1,13 @@
 #include "PathPlanner.hpp"
 
+#include <algorithm>
 #include <fstream>
 #include <iterator>
 #include <queue>
 #include <sstream>
 #include <stack>
 #include <stdexcept>
+#include <tuple>
 #include <vector>
 
 #include "Util.hpp"
@@ -18,6 +20,7 @@ PathPlanner::PathPlanner(std::string const& fileName) {
     buildDirectedGraph();
     searchPaths();
     printPaths();
+    printLeastTurnsPath();
 }
 
 PathPlanner::PathPlanner(PathPlanner&& pathPlanner) noexcept
@@ -69,10 +72,20 @@ auto PathPlanner::buildGraph() -> void {
                     case 'x':
                         end_ = {x, y};
                         break;
-                    case 'v':
-                    case '<':
-                    case '>':
                     case '^':
+                        heading_ = 0;
+                        start_ = {x, y};
+                        break;
+                    case '>':
+                        heading_ = 1;
+                        start_ = {x, y};
+                        break;
+                    case 'v':
+                        heading_ = 2;
+                        start_ = {x, y};
+                        break;
+                    case '<':
+                        heading_ = 3;
                         start_ = {x, y};
                         break;
                     default:
@@ -134,18 +147,25 @@ auto PathPlanner::searchPaths() noexcept -> void {
     path.emplace_back(start_);
 
     // Initialise path stack.
-    auto pathStack = std::stack<std::pair<std::pair<int, int>, std::vector<std::pair<int, int>>>>();
-    pathStack.push(std::make_pair(start_, path));
+    auto pathStack = std::stack<std::tuple<std::pair<int, int>, std::vector<std::pair<int, int>>,
+                                           int>>();  // [(point, path, numberTurns)]
+    pathStack.push({start_, path, 0});
 
     while (pathStack.empty() == false) {
-        auto const pairValue = pathStack.top();
-        auto const& currentPosition = pairValue.first;
-        auto const& path = pairValue.second;
+        auto const retval = pathStack.top();
+        auto const& currentPosition = std::get<0>(retval);
+        auto const& path = std::get<1>(retval);
+        auto const& numberTurns = std::get<2>(retval);
         pathStack.pop();
 
         // Found the destination.
         if (currentPosition == end_) {
-            paths_.push_back(path);
+            // Get heading from last two points and subtract it from the given initial heading to
+            // get the number of turns at beginning of path plan.
+            auto westEastHeading = path.rbegin()[1].first - path.rbegin()[0].first;
+            auto northSouthHeading = path.rbegin()[1].second - path.rbegin()[0].second;
+            auto heading = northSouthHeading == 0 ? westEastHeading + 2 : northSouthHeading + 1;
+            paths_.emplace_back(path, numberTurns + std::abs((heading - heading_) % 2));
         }
 
         for (auto const& adjacentPosition : graph_.at(currentPosition).second) {
@@ -153,7 +173,22 @@ auto PathPlanner::searchPaths() noexcept -> void {
             if (graph_.at(adjacentPosition).first <= graph_.at(currentPosition).first) {
                 auto newPath = std::vector<std::pair<int, int>>(path);
                 newPath.emplace_back(adjacentPosition);
-                pathStack.push(std::make_pair(adjacentPosition, newPath));
+
+                // Given (i, j), the following is true for 3 points on an L-shaped path:
+                //      (i-1) + (i) + (i+1) != 3*i   for all values of i
+                //      (j-1) + (j) + (j+1) != 3*j   for all values of j
+                auto newNumberTurns = numberTurns;
+                if (newPath.size() > 2 &&
+                    3 * newPath.rbegin()[1].first != newPath.rbegin()[0].first +
+                                                         newPath.rbegin()[1].first +
+                                                         newPath.rbegin()[2].first &&
+                    3 * newPath.rbegin()[1].second != newPath.rbegin()[0].second +
+                                                          newPath.rbegin()[1].second +
+                                                          newPath.rbegin()[2].second) {
+                    newNumberTurns++;
+                }
+
+                pathStack.push({adjacentPosition, newPath, newNumberTurns});
             }
         }
     }
@@ -165,9 +200,8 @@ auto PathPlanner::printPaths() const noexcept -> void {
     for (auto i = 0; i < static_cast<int>(paths_.size()); i++) {
         print("Path - " + std::to_string(i + 1) + ":");
 
-        auto const& path = paths_.at(i);
+        auto const& path = paths_.at(i).first;
         auto tempMap = map_;
-
         for (auto const& position : path) {
             auto const col = 4 * position.first + 2;
             auto const line = 2 * position.second + 1;
@@ -186,6 +220,34 @@ auto PathPlanner::printPaths() const noexcept -> void {
         }
     }
     print(std::to_string(paths_.size()) + " shortest paths found!");
+}
+
+auto PathPlanner::printLeastTurnsPath() const noexcept -> void {
+    print("Finding shortest path with least turns...");
+
+    auto const& leastTurnsPath =
+        std::min_element(paths_.begin(), paths_.end(),
+                         [](auto const& a, auto const& b) { return a.second < b.second; });
+    auto tempMap = map_;
+    for (auto const& position : leastTurnsPath->first) {
+        auto const col = 4 * position.first + 2;
+        auto const line = 2 * position.second + 1;
+
+        if (position == start_) {
+            continue;
+        }
+
+        auto const index = std::to_string(graph_.at(position).first);
+        tempMap[line][col] = index[0];
+        tempMap[line][col + 1] = index.size() > 1 ? index[1] : ' ';
+    }
+
+    for (auto const& line : tempMap) {
+        print(line);
+    }
+    print("Shortest path with least turns found!");
+
+    print("Path Plan (" + std::to_string(2) + "steps): ");
 }
 
 auto PathPlanner::writePathPlan() const noexcept -> void {}
