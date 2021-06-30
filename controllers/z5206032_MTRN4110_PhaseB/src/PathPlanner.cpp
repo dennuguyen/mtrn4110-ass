@@ -1,7 +1,6 @@
 #include "PathPlanner.hpp"
 
 #include <fstream>
-#include <iostream>
 #include <iterator>
 #include <queue>
 #include <sstream>
@@ -189,13 +188,6 @@ auto PathPlanner::printPaths() const noexcept -> void {
     print(std::to_string(paths_.size()) + " shortest paths found!");
 }
 
-auto PathPlanner::writePathPlan() const noexcept -> void {
-    for (auto const& i : paths_) {
-        for (auto const& j : i) {
-            std::cout << "(" << j.second << "," << j.first << ") ";
-        }
-        std::cout << std::endl;
-    }
-}
+auto PathPlanner::writePathPlan() const noexcept -> void {}
 
 }  // namespace mtrn4110
