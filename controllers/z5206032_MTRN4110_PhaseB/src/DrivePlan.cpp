@@ -10,7 +10,7 @@ namespace mtrn4110 {
 
 DrivePlan::DrivePlan(std::string const& fileName) {
     // Read motion plan file.
-    print("Reading in motion plan from " + fileName + "...");
+    // print("Reading in motion plan from " + fileName + "...");
     auto motionPlanFile = std::fstream(fileName.c_str(), std::fstream::in);
     if (motionPlanFile.good() == false) {
         throw std::runtime_error("ERROR: No such file.");
@@ -18,12 +18,12 @@ DrivePlan::DrivePlan(std::string const& fileName) {
 
     // Get motion plan assuming it is valid.
     motionPlanFile >> motionPlan_;
-    print("Motion Plan: " + motionPlan_);
+    // print("Motion Plan: " + motionPlan_);
 
     std::copy(motionPlan_.begin() + 3, motionPlan_.end(), std::back_inserter(motionSequence_));
-    print("Motion plan read in!");
+    // print("Motion plan read in!");
 
-    print("Executing motion plan...");
+    // print("Executing motion plan...");
 }
 
 DrivePlan::DrivePlan(DrivePlan&& drivePlan) noexcept
@@ -32,9 +32,9 @@ DrivePlan::DrivePlan(DrivePlan&& drivePlan) noexcept
 
 DrivePlan::~DrivePlan() { print("Motion plan executed!"); }
 
-auto const DrivePlan::getMotionPlan() const -> std::string { return motionPlan_; }
+auto DrivePlan::getMotionPlan() const -> std::string const { return motionPlan_; }
 
-auto const DrivePlan::nextSequence() -> char {
+auto DrivePlan::nextSequence() -> char const {
     if (motionSequence_.empty() == true) {
         return 'E';
     }
@@ -44,12 +44,12 @@ auto const DrivePlan::nextSequence() -> char {
     return sequence;
 }
 
-auto const DrivePlan::getInitialLocalisation() const -> std::pair<int, int> {
+auto DrivePlan::getInitialLocalisation() const -> std::pair<int, int> const {
     return {static_cast<int>(motionPlan_[0]),   // row
             static_cast<int>(motionPlan_[1])};  // column
 }
 
-auto const DrivePlan::getInitialHeading() const -> char { return motionPlan_[2]; }
+auto DrivePlan::getInitialHeading() const -> char const { return motionPlan_[2]; }
 
 auto DrivePlan::displayMotionSequence() const -> void {
     auto ss = std::stringstream();
