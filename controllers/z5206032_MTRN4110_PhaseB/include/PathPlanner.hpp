@@ -7,8 +7,6 @@
 
 namespace mtrn4110 {
 
-using Coordinate = std::pair<int, int>;
-
 class PathPlanner {
    public:
     explicit PathPlanner(std::string const &);
@@ -17,18 +15,22 @@ class PathPlanner {
     ~PathPlanner() = default;
 
    private:
-    auto readMapFile(std::string const &) const -> std::string const;
-    auto buildGraph(std::string const &map) -> void;
+    auto readMapFile(std::string const &) const -> std::vector<std::string> const;
+    auto buildGraph(std::vector<std::string> const &map) -> void;
     auto buildDirectedGraph() -> void;
     auto searchPaths() -> void;
     auto writePathPlan() const -> void;
 
+   public:
+    static auto constexpr unvisited = -1;
+
    private:
-    std::map<Coordinate, std::pair<int, std::vector<Coordinate>>> directedGraph_;
-    std::vector<std::vector<Coordinate>> paths_;
-    Coordinate start_;
-    Coordinate destination_;
+    std::map<std::pair<int, int>, std::pair<int, std::vector<std::pair<int, int>>>> directedGraph_;
+    std::vector<std::vector<std::pair<int, int>>> paths_;
+    std::pair<int, int> start_;
+    std::pair<int, int> end_;
 };
+
 }  // namespace mtrn4110
 
 #endif  // PATH_PLANNER_HPP_

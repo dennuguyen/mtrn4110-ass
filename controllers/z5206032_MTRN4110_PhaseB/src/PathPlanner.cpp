@@ -2,7 +2,11 @@
 
 #include <fstream>
 #include <iostream>
+#include <iterator>
+#include <queue>
 #include <sstream>
+#include <stack>
+#include <vector>
 
 #include "Util.hpp"
 
@@ -11,104 +15,152 @@ namespace mtrn4110 {
 PathPlanner::PathPlanner(std::string const& fileName) {
     auto const& map = readMapFile(fileName);
     buildGraph(map);
-    // buildDirectedGraph();
-    // searchPaths();
-    // writePathPlan();
+    buildDirectedGraph();
+    searchPaths();
+    writePathPlan();
 }
 
 PathPlanner::PathPlanner(PathPlanner&& pathPlanner) noexcept
     : directedGraph_(pathPlanner.directedGraph_),
       paths_(pathPlanner.paths_),
       start_(pathPlanner.start_),
-      destination_(pathPlanner.destination_) {}
+      end_(pathPlanner.end_) {}
 
-auto PathPlanner::readMapFile(std::string const& fileName) const -> std::string const {
-    // Read map file.
+auto PathPlanner::readMapFile(std::string const& fileName) const -> std::vector<std::string> const {
     print("Reading in map from " + fileName + "...");
-    auto mapFile = std::fstream(fileName.c_str(), std::fstream::in);
+    auto mapFile = std::ifstream(fileName.data());
     if (mapFile.good() == false) {
         throw std::runtime_error("ERROR: No such file.");
     }
 
-    // Get map assuming it is valid.
-    auto map = std::stringstream();
-    map << mapFile.rdbuf();
+    auto line = std::string();
+    auto map = std::vector<std::string>();
+    while (std::getline(mapFile, line)) {
+        map.push_back(line);
+    }
+    if (mapFile.bad() == true) {
+        throw std::runtime_error("ERROR: Could not read.");
+    }
+    if (mapFile.eof() == false) {
+        throw std::runtime_error("ERROR: Did not reach EOF.");
+    }
 
     print("Map read in!");
 
-    return map.str();
+    return map;
 }
 
-auto PathPlanner::buildGraph(std::string const& map) -> void {
-    // Parse map into graph.
-    auto x = 0;
-    auto y = 0;
-    auto line = 0;
-    auto col = 0;
-    for (auto const& symbol : map) {
-        if (symbol == '\n') {
-            col = 0;
-            x = 0;
-            line++;
-            if (line % 2 == 0) {
-                y++;
-            }
-            continue;
-        }
-
-        // Iterate (x, y)
-        if (0) {
-        }
-
-        // Check for horizontal wall.
-        if ((col + 2) % 4 == 0 && line % 2 == 0) {
-            if (symbol == ' ') {
-                directedGraph_[{x, y}].second.emplace_back(x + 1, y);
-                directedGraph_[{x + 1, y}].second.emplace_back(x, y);
-            } else {
-                directedGraph_[{x, y}].second.emplace_back();
-                directedGraph_[{x + 1, y}].second.emplace_back();
-            }
-        }
-
-        // Check for start and end position.
-        if ((col + 2) % 4 == 0 && line % 2 != 0) {
-            if (symbol == 'v') {
-            }
-            if (symbol == 'x') {
-            }
-        }
-
-        // Check for vertical wall.
-        if (col % 4 == 0) {
-            if (symbol == ' ') {
-                directedGraph_[{x, y}].second.emplace_back(x, y + 1);
-                directedGraph_[{x, y + 1}].second.emplace_back(x, y);
-            } else {
-                directedGraph_[{x, y}].second.emplace_back();
-                directedGraph_[{x, y + 1}].second.emplace_back();
-            }
-            x++;
-        }
-
-        // Add edge to graph.
-
-        col++;
+auto PathPlanner::buildGraph(std::vector<std::string> const& map) -> void {
+    if (map.empty() == true) {
+        throw std::runtime_error("ERROR: Cannot build graph from empty map.");
     }
 
-    for (auto const& i : directedGraph_) {
-        std::cout << "(" << i.first.first << ", " << i.first.second << ") : ";
-        for (auto const& j : i.second.second) {
-            std::cout << "(" << j.first << ", " << j.second << "), ";
+    for (auto line = 0; line < static_cast<int>(map.size()); line++) {
+        for (auto col = 0; col < static_cast<int>(map.at(0).size()); col++) {
+            // At centre of tile.
+            if ((col + 2) % 4 == 0 && line % 2 != 0) {
+                auto x = (col - 2) / 4;
+                auto y = (line - 1) / 2;
+
+                // Check start position.
+                if (map[line][col] == 'v') {
+                    start_ = {x, y};
+                }
+
+                // Check end position.
+                if (map[line][col] == 'x') {
+                    end_ = {x, y};
+                }
+
+                // Check vertical wall to right of centre of tile.
+                if (col + 2 < static_cast<int>(map.at(0).size())) {
+                    if (map[line][col + 2] == ' ') {
+                        directedGraph_[{x, y}].first = unvisited;
+                        directedGraph_[{x, y}].second.emplace_back(x + 1, y);
+                        directedGraph_[{x + 1, y}].first = unvisited;
+                        directedGraph_[{x + 1, y}].second.emplace_back(x, y);
+                    }
+                }
+
+                // Check horizontal wall below centre of tile.
+                if (line + 1 < static_cast<int>(map.size())) {
+                    if (map[line + 1][col] == ' ') {
+                        directedGraph_[{x, y}].first = unvisited;
+                        directedGraph_[{x, y}].second.emplace_back(x, y + 1);
+                        directedGraph_[{x, y + 1}].first = unvisited;
+                        directedGraph_[{x, y + 1}].second.emplace_back(x, y);
+                    }
+                }
+            }
+        }
+    }
+}
+
+auto PathPlanner::buildDirectedGraph() -> void {
+    directedGraph_.at(start_).first = 0;
+
+    auto pathQueue = std::queue<std::pair<int, int>>();
+    pathQueue.push(start_);
+
+    while (pathQueue.empty() == false) {
+        auto const currentPosition = pathQueue.front();
+        pathQueue.pop();
+
+        // Found the destination.
+        if (currentPosition == end_) {
+            break;
+        }
+
+        for (auto const& adjacentPosition : directedGraph_.at(currentPosition).second) {
+            // Give unvisited words a distance from source.
+            if (directedGraph_.at(adjacentPosition).first == unvisited) {
+                directedGraph_.at(adjacentPosition).first =
+                    directedGraph_.at(currentPosition).first + 1;
+                pathQueue.push(adjacentPosition);
+            }
+        }
+    }
+}
+
+auto PathPlanner::searchPaths() -> void {
+    // Initialisepath.
+    auto path = std::vector<std::pair<int, int>>();
+    path.emplace_back(start_);
+
+    // Initialise path stack.
+    auto pathStack = std::stack<std::pair<std::pair<int, int>, std::vector<std::pair<int, int>>>>();
+    pathStack.push(std::make_pair(start_, path));
+
+    while (pathStack.empty() == false) {
+        auto const pairValue = pathStack.top();
+        auto const& currentPosition = pairValue.first;
+        auto const& path = pairValue.second;
+        pathStack.pop();
+
+        // Found the destination.
+        if (currentPosition == end_) {
+            paths_.push_back(path);
+        }
+
+        for (auto const& adjacentPosition : directedGraph_.at(currentPosition).second) {
+            // Check for direction of graph.
+            if (directedGraph_.at(adjacentPosition).first >
+                directedGraph_.at(currentPosition).first) {
+                auto newPath = std::vector<std::pair<int, int>>(path);
+                newPath.emplace_back(adjacentPosition);
+                pathStack.push(std::make_pair(adjacentPosition, newPath));
+            }
+        }
+    }
+}
+
+auto PathPlanner::writePathPlan() const -> void {
+    for (auto const& i : paths_) {
+        for (auto const& j : i) {
+            std::cout << "(" << j.second << ", " << j.first << "), ";
         }
         std::cout << std::endl;
     }
 }
-
-auto PathPlanner::buildDirectedGraph() -> void {}
-
-auto PathPlanner::searchPaths() -> void {}
-
-auto PathPlanner::writePathPlan() const -> void {}
 
 }  // namespace mtrn4110
