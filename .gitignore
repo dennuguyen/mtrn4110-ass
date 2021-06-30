@@ -9,7 +9,7 @@
 !*.csv
 !*.cpp
 !*.hpp
-Makefile
+!Makefile
 
 # and in their subdirectories
 !*/
