@@ -32,9 +32,9 @@ DrivePlan::DrivePlan(DrivePlan&& drivePlan) noexcept
 
 DrivePlan::~DrivePlan() { print("Motion plan executed!"); }
 
-auto DrivePlan::getMotionPlan() const -> std::string const { return motionPlan_; }
+auto DrivePlan::getMotionPlan() const -> std::string { return motionPlan_; }
 
-auto DrivePlan::nextSequence() -> char const {
+auto DrivePlan::nextSequence() -> char {
     if (motionSequence_.empty() == true) {
         return 'E';
     }
@@ -44,12 +44,12 @@ auto DrivePlan::nextSequence() -> char const {
     return sequence;
 }
 
-auto DrivePlan::getInitialLocalisation() const -> std::pair<int, int> const {
+auto DrivePlan::getInitialLocalisation() const -> std::pair<int, int> {
     return {static_cast<int>(motionPlan_[0]),   // row
             static_cast<int>(motionPlan_[1])};  // column
 }
 
-auto DrivePlan::getInitialHeading() const -> char const { return motionPlan_[2]; }
+auto DrivePlan::getInitialHeading() const -> char { return motionPlan_[2]; }
 
 auto DrivePlan::displayMotionSequence() const -> void {
     auto ss = std::stringstream();

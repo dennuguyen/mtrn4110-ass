@@ -12,10 +12,10 @@ class DrivePlan {
     explicit DrivePlan(DrivePlan const&) = delete;
     DrivePlan(DrivePlan&&) noexcept;
     ~DrivePlan();
-    auto getMotionPlan() const -> std::string const;
-    auto nextSequence() -> char const;
-    auto getInitialLocalisation() const -> std::pair<int, int> const;
-    auto getInitialHeading() const -> char const;
+    auto getMotionPlan() const -> std::string;
+    auto nextSequence() -> char;
+    auto getInitialLocalisation() const -> std::pair<int, int>;
+    auto getInitialHeading() const -> char;
     auto displayMotionSequence() const -> void;
 
    private:
