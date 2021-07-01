@@ -209,13 +209,11 @@ auto PathPlanner::searchPaths() noexcept -> void {
 }
 
 auto PathPlanner::searchLeastTurnsPath() noexcept -> void {
+    auto checkTurn = [](auto const& c) { return c == 'L' || c == 'R'; };
     leastTurnsPath_ =
-        std::min_element(paths_.begin(), paths_.end(), [](auto const& a, auto const& b) {
-            return std::count_if(a.second.begin(), a.second.end(),
-                                 [](auto const& c) { return c == 'L' || c == 'R'; }) <
-                   std::count_if(
-                       b.second.begin(), b.second.end(),
-                       [](auto const& c) { return c == 'L' || c == 'R'; });
+        std::min_element(paths_.begin(), paths_.end(), [checkTurn](auto const& a, auto const& b) {
+            return std::count_if(a.second.begin(), a.second.end(), checkTurn) <
+                   std::count_if(b.second.begin(), b.second.end(), checkTurn);
         });
 }
 
