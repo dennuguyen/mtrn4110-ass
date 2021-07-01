@@ -31,6 +31,7 @@ class PathPlanner {
     std::map<std::pair<int, int>, std::pair<int, std::vector<std::pair<int, int>>>>
         graph_;  // {point, (visitWeight, [point])}
     std::vector<std::pair<std::vector<std::pair<int, int>>, int>> paths_;  // [(path, numberTurns)]
+    std::string pathPlan_;
     std::pair<int, int> start_;
     std::pair<int, int> end_;
     int heading_;  // N = 0, E = 1, S = 2, W = 3

@@ -24,10 +24,13 @@ PathPlanner::PathPlanner(std::string const& fileName) {
 }
 
 PathPlanner::PathPlanner(PathPlanner&& pathPlanner) noexcept
-    : graph_(pathPlanner.graph_),
-      paths_(pathPlanner.paths_),
-      start_(pathPlanner.start_),
-      end_(pathPlanner.end_) {}
+    : map_(std::move(pathPlanner.map_)),
+      graph_(std::move(pathPlanner.graph_)),
+      paths_(std::move(pathPlanner.paths_)),
+      pathPlan_(std::move(pathPlanner.pathPlan_)),
+      start_(std::move(pathPlanner.start_)),
+      end_(std::move(pathPlanner.end_)),
+      heading_(std::move(pathPlanner.heading_)) {}
 
 auto PathPlanner::readMapFile(std::string const& fileName) -> void {
     print("Reading in map from " + fileName + "...");
@@ -204,7 +207,7 @@ auto PathPlanner::printPaths() const noexcept -> void {
             auto const col = 4 * position.first + 2;
             auto const line = 2 * position.second + 1;
 
-            // Do no write over this.
+            // Do not write over this.
             if (position == start_) {
                 continue;
             }
