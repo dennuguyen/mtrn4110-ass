@@ -44,6 +44,7 @@ PathPlanner::PathPlanner(std::string const& mapPath, std::string const& pathPlan
     print("Path Plan (" + std::to_string(leastTurnsPath_->second.size() - 3) +
           " steps): " + leastTurnsPath_->second);
 
+    // Write out path plan.
     print("Writing path plan to " + pathPlanPath + "...");
     writePathPlan2txt(pathPlanPath);
     print("Path plan written to " + pathPlanPath + "!");
@@ -245,7 +246,18 @@ auto PathPlanner::printPath(std::vector<std::pair<int, int>> const& path) const 
     }
 }
 
-auto PathPlanner::writePathPlan2txt(std::string const& pathPlanPath) const noexcept -> void {}
+auto PathPlanner::writePathPlan2txt(std::string const& pathPlanPath) const -> void {
+    auto pathPlan = std::ofstream(pathPlanPath);
+    if (pathPlan.good() == false) {
+        throw std::runtime_error("Could not open file.");
+    }
+
+    pathPlan << leastTurnsPath_->second;
+
+    if (pathPlan.bad() == true) {
+        throw std::runtime_error("I/O error while reading.");
+    }
+}
 
 // a is predecessor of b.
 auto PathPlanner::getHeadingIndex(std::pair<int, int> a, std::pair<int, int> b) const -> int {

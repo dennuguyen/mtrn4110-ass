@@ -3,6 +3,7 @@
 
 #include <array>
 #include <map>
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -22,7 +23,7 @@ class PathPlanner {
     auto searchPaths() noexcept -> void;
     auto searchLeastTurnsPath() noexcept -> void;
     auto printPath(std::vector<std::pair<int, int>> const &) const noexcept -> void;
-    auto writePathPlan2txt(std::string const &) const noexcept -> void;
+    auto writePathPlan2txt(std::string const &) const -> void;
     auto getHeadingIndex(std::pair<int, int>, std::pair<int, int>) const -> int;
     auto getAction(int a, int b) const -> std::string;
 
