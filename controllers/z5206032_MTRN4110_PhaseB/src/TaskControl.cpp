@@ -8,18 +8,12 @@
 namespace mtrn4110 {
 
 TaskControl::TaskControl(webots::Robot &robot)
-    : pathPlanner(PathPlanner(mapPath)),
+    : pathPlanner(PathPlanner(mapPath, pathPlanPath)),
       drivePlan(DrivePlan(drivePlanPath)),
       motionControl(MotionControl(robot)),
       localisation(
           Localisation(robot, drivePlan.getInitialLocalisation(), drivePlan.getInitialHeading())),
-      wallPerception(WallPerception(robot)) {
-    initcsv();
-
-    // Display the initial state.
-    // displayMessage();
-    writeMessage2csv();
-}
+      wallPerception(WallPerception(robot)) {}
 
 TaskControl::TaskControl(TaskControl &&taskControl) noexcept
     : pathPlanner(std::move(taskControl.pathPlanner)),
@@ -93,12 +87,12 @@ auto TaskControl::getMessage() const noexcept -> std::vector<std::pair<std::stri
     auto ss = std::stringstream();
     ss << std::setw(3) << std::setfill('0') << step_;
     msg.push_back({"Step", ss.str()});
-    msg.push_back({"Row", std::string(1, localisation.getRow())});
-    msg.push_back({"Column", std::string(1, localisation.getColumn())});
-    msg.push_back({"Heading", std::string(1, localisation.getHeading())});
-    msg.push_back({"Left Wall", std::string(1, wallPerception.getLeftWall())});
-    msg.push_back({"Front Wall", std::string(1, wallPerception.getFrontWall())});
-    msg.push_back({"Right Wall", std::string(1, wallPerception.getRightWall())});
+    msg.push_back({"Row", std::to_string(localisation.getRow())});
+    msg.push_back({"Column", std::to_string(localisation.getColumn())});
+    msg.push_back({"Heading", std::to_string(localisation.getHeading())});
+    msg.push_back({"Left Wall", std::to_string(wallPerception.getLeftWall())});
+    msg.push_back({"Front Wall", std::to_string(wallPerception.getFrontWall())});
+    msg.push_back({"Right Wall", std::to_string(wallPerception.getRightWall())});
     return msg;
 }
 

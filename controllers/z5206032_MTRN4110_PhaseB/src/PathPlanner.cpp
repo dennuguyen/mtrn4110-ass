@@ -14,10 +14,10 @@
 
 namespace mtrn4110 {
 
-PathPlanner::PathPlanner(std::string const& fileName) {
+PathPlanner::PathPlanner(std::string const& mapPath, std::string const& pathPlanPath) {
     // Read map.
-    print("Reading in map from " + fileName + "...");
-    readMapFile(fileName);
+    print("Reading in map from " + mapPath + "...");
+    readMapFile(mapPath);
     print("Map read in!");
 
     // Build graph from map.
@@ -43,6 +43,10 @@ PathPlanner::PathPlanner(std::string const& fileName) {
     print("Shortest path with least turns found!");
     print("Path Plan (" + std::to_string(leastTurnsPath_->second.size() - 3) +
           " steps): " + leastTurnsPath_->second);
+
+    print("Writing path plan to " + pathPlanPath + "...");
+    writePathPlan2txt(pathPlanPath);
+    print("Path plan written to " + pathPlanPath + "!");
 }
 
 PathPlanner::PathPlanner(PathPlanner&& pathPlanner) noexcept
@@ -54,8 +58,8 @@ PathPlanner::PathPlanner(PathPlanner&& pathPlanner) noexcept
       end_(std::move(pathPlanner.end_)),
       heading_(std::move(pathPlanner.heading_)) {}
 
-auto PathPlanner::readMapFile(std::string const& fileName) -> void {
-    auto mapFile = std::ifstream(fileName.data());
+auto PathPlanner::readMapFile(std::string const& mapPath) -> void {
+    auto mapFile = std::ifstream(mapPath.data());
     if (mapFile.good() == false) {
         throw std::runtime_error("Could not open file.");
     }
@@ -241,7 +245,7 @@ auto PathPlanner::printPath(std::vector<std::pair<int, int>> const& path) const 
     }
 }
 
-auto PathPlanner::writePathPlan() const noexcept -> void {}
+auto PathPlanner::writePathPlan2txt(std::string const& pathPlanPath) const noexcept -> void {}
 
 // a is predecessor of b.
 auto PathPlanner::getHeadingIndex(std::pair<int, int> a, std::pair<int, int> b) const -> int {

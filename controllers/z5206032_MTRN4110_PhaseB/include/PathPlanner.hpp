@@ -10,7 +10,7 @@ namespace mtrn4110 {
 
 class PathPlanner {
    public:
-    explicit PathPlanner(std::string const &);
+    explicit PathPlanner(std::string const &, std::string const &);
     explicit PathPlanner(PathPlanner const &) = delete;
     PathPlanner(PathPlanner &&) noexcept;
     ~PathPlanner() = default;
@@ -22,7 +22,7 @@ class PathPlanner {
     auto searchPaths() noexcept -> void;
     auto searchLeastTurnsPath() noexcept -> void;
     auto printPath(std::vector<std::pair<int, int>> const &) const noexcept -> void;
-    auto writePathPlan() const noexcept -> void;
+    auto writePathPlan2txt(std::string const &) const noexcept -> void;
     auto getHeadingIndex(std::pair<int, int>, std::pair<int, int>) const -> int;
     auto getAction(int a, int b) const -> std::string;
 

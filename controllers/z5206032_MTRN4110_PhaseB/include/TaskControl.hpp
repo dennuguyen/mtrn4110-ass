@@ -33,6 +33,7 @@ class TaskControl {
     static constexpr auto drivePlanPath = "../../MotionPlan.txt";
     static constexpr auto csvPath = "../../MotionExecution.csv";
     static constexpr auto mapPath = "../../Map.txt";
+    static constexpr auto pathPlanPath = "../../PathPlan.txt";
     PathPlanner pathPlanner;        // Path planner.
     DrivePlan drivePlan;            // Driving plan (can be replaced by autonomous driving).
     MotionControl motionControl;    // Kinematic model.
