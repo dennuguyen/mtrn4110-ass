@@ -15,25 +15,46 @@
 namespace mtrn4110 {
 
 PathPlanner::PathPlanner(std::string const& fileName) {
+    // Read map.
+    print("Reading in map from " + fileName + "...");
     readMapFile(fileName);
+    print("Map read in!");
+
+    // Build graph from map.
     buildGraph();
+
+    // Build directed graph from graph.
     buildDirectedGraph();
+
+    // Find all shortest paths in directed graph.
     searchPaths();
-    printPaths();
-    printLeastTurnsPath();
+    print("Finding shortest paths...");
+    for (auto i = 0; i < static_cast<int>(paths_.size()); i++) {
+        print("Path - " + std::to_string(i + 1) + ":");
+        auto const& path = paths_.at(i).first;
+        printPath(path);
+    }
+    print(std::to_string(paths_.size()) + " shortest paths found!");
+
+    // Find path with least number of turns from shortest paths.
+    print("Finding shortest path with least turns...");
+    searchLeastTurnsPath();
+    printPath(leastTurnsPath_->first);
+    print("Shortest path with least turns found!");
+    print("Path Plan (" + std::to_string(leastTurnsPath_->second.size() - 3) +
+          " steps): " + leastTurnsPath_->second);
 }
 
 PathPlanner::PathPlanner(PathPlanner&& pathPlanner) noexcept
     : map_(std::move(pathPlanner.map_)),
       graph_(std::move(pathPlanner.graph_)),
       paths_(std::move(pathPlanner.paths_)),
-      pathPlan_(std::move(pathPlanner.pathPlan_)),
+      leastTurnsPath_(std::move(pathPlanner.leastTurnsPath_)),
       start_(std::move(pathPlanner.start_)),
       end_(std::move(pathPlanner.end_)),
       heading_(std::move(pathPlanner.heading_)) {}
 
 auto PathPlanner::readMapFile(std::string const& fileName) -> void {
-    print("Reading in map from " + fileName + "...");
     auto mapFile = std::ifstream(fileName.data());
     if (mapFile.good() == false) {
         throw std::runtime_error("Could not open file.");
@@ -50,8 +71,6 @@ auto PathPlanner::readMapFile(std::string const& fileName) -> void {
     if (mapFile.eof() == false) {
         throw std::runtime_error("Did not reach EOF.");
     }
-
-    print("Map read in!");
 }
 
 auto PathPlanner::buildGraph() -> void {
@@ -149,24 +168,21 @@ auto PathPlanner::searchPaths() noexcept -> void {
     path.emplace_back(start_);
 
     auto pathStack = std::stack<std::tuple<std::pair<int, int>, std::vector<std::pair<int, int>>,
-                                           int>>();  // [(point, path, numberTurns)]
-    pathStack.push({start_, path, 0});
+                                           std::string>>();  // [(point, path, pathPlan)]
+    auto pathPlan =
+        std::to_string(start_.first) + std::to_string(start_.second) + cardinalPoints[heading_];
+    pathStack.push({start_, path, pathPlan});
 
     while (pathStack.empty() == false) {
         auto const retval = pathStack.top();
         auto const& currentPosition = std::get<0>(retval);
         auto const& path = std::get<1>(retval);
-        auto const& numberTurns = std::get<2>(retval);
+        auto const& pathPlan = std::get<2>(retval);
         pathStack.pop();
 
         // Found the destination.
         if (currentPosition == end_) {
-            // Get heading from last two points and subtract it from the given initial heading to
-            // get the number of turns at beginning of path plan.
-            auto westEastHeading = path.rbegin()[1].first - path.rbegin()[0].first;
-            auto northSouthHeading = path.rbegin()[1].second - path.rbegin()[0].second;
-            auto heading = northSouthHeading == 0 ? westEastHeading + 2 : northSouthHeading + 1;
-            paths_.emplace_back(path, numberTurns + std::abs((heading - heading_) % 2));
+            paths_.emplace_back(path, pathPlan);
         }
 
         for (auto const& adjacentPosition : graph_.at(currentPosition).second) {
@@ -175,84 +191,85 @@ auto PathPlanner::searchPaths() noexcept -> void {
                 auto newPath = std::vector<std::pair<int, int>>(path);
                 newPath.emplace_back(adjacentPosition);
 
-                // Given (i, j), the following is true for 3 points on an L-shaped path:
-                //      (i-1) + (i) + (i+1) != 3*i   for all values of i
-                //      (j-1) + (j) + (j+1) != 3*j   for all values of j
-                auto newNumberTurns = numberTurns;
-                if (newPath.size() > 2 &&
-                    3 * newPath.rbegin()[1].first != newPath.rbegin()[0].first +
-                                                         newPath.rbegin()[1].first +
-                                                         newPath.rbegin()[2].first &&
-                    3 * newPath.rbegin()[1].second != newPath.rbegin()[0].second +
-                                                          newPath.rbegin()[1].second +
-                                                          newPath.rbegin()[2].second) {
-                    newNumberTurns++;
+                auto newPathPlan = pathPlan;
+                if (newPath.size() > 1) {
+                    auto const& a = newPath.rbegin()[2];
+                    auto const& b = newPath.rbegin()[1];
+                    auto const& c = newPath.rbegin()[0];
+                    if (newPath.size() > 2) {
+                        newPathPlan += getAction(getHeadingIndex(a, b), getHeadingIndex(b, c));
+                    } else {
+                        newPathPlan += getAction(getHeadingIndex(b, c), heading_);
+                    }
                 }
-
-                pathStack.push({adjacentPosition, newPath, newNumberTurns});
+                pathStack.push({adjacentPosition, newPath, newPathPlan});
             }
         }
     }
 }
 
-auto PathPlanner::printPaths() const noexcept -> void {
-    print("Finding shortest paths...");
-
-    for (auto i = 0; i < static_cast<int>(paths_.size()); i++) {
-        print("Path - " + std::to_string(i + 1) + ":");
-
-        auto const& path = paths_.at(i).first;
-        auto tempMap = map_;
-        for (auto const& position : path) {
-            auto const col = 4 * position.first + 2;
-            auto const line = 2 * position.second + 1;
-
-            // Do not write over this.
-            if (position == start_) {
-                continue;
-            }
-
-            // Write path weighting into map.
-            auto const index = std::to_string(graph_.at(position).first);
-            tempMap[line][col] = index[0];
-            tempMap[line][col + 1] = index.size() > 1 ? index[1] : ' ';
-        }
-
-        for (auto const& line : tempMap) {
-            print(line);
-        }
-    }
-    print(std::to_string(paths_.size()) + " shortest paths found!");
+auto PathPlanner::searchLeastTurnsPath() noexcept -> void {
+    leastTurnsPath_ =
+        std::min_element(paths_.begin(), paths_.end(), [](auto const& a, auto const& b) {
+            return std::count_if(a.second.begin(), a.second.end(),
+                                 [](auto const& c) { return c == 'L' || c == 'R'; }) <
+                   std::count_if(
+                       b.second.begin(), b.second.end(),
+                       [](auto const& c) { return c == 'L' || c == 'R'; });
+        });
 }
 
-auto PathPlanner::printLeastTurnsPath() const noexcept -> void {
-    print("Finding shortest path with least turns...");
-
-    auto const& leastTurnsPath =
-        std::min_element(paths_.begin(), paths_.end(),
-                         [](auto const& a, auto const& b) { return a.second < b.second; });
+auto PathPlanner::printPath(std::vector<std::pair<int, int>> const& path) const noexcept -> void {
+    // Fill out a map with the given path.
     auto tempMap = map_;
-    for (auto const& position : leastTurnsPath->first) {
+    for (auto const& position : path) {
         auto const col = 4 * position.first + 2;
         auto const line = 2 * position.second + 1;
 
+        // Do not write over this.
         if (position == start_) {
             continue;
         }
 
+        // Write path weighting into map.
         auto const index = std::to_string(graph_.at(position).first);
         tempMap[line][col] = index[0];
         tempMap[line][col + 1] = index.size() > 1 ? index[1] : ' ';
     }
 
+    // Print out map.
     for (auto const& line : tempMap) {
         print(line);
     }
-    print("Shortest path with least turns found!");
-
-    print("Path Plan (" + std::to_string(2) + "steps): ");
 }
 
 auto PathPlanner::writePathPlan() const noexcept -> void {}
+
+// a is predecessor of b.
+auto PathPlanner::getHeadingIndex(std::pair<int, int> a, std::pair<int, int> b) const -> int {
+    auto westEastHeading = a.first - b.first;      // W = 1, E = -1
+    auto northSouthHeading = a.second - b.second;  // S = 1, N = -1
+    auto heading = northSouthHeading == 0 ? westEastHeading + 2 : northSouthHeading + 1;
+    return heading;
+}
+
+// a is predecessor of b.
+auto PathPlanner::getAction(int a, int b) const -> std::string {
+    switch (a - b) {
+        case 0:
+            return "F";
+        case -2:
+        case 2:
+            return "LL";
+        case -1:
+        case 3:
+            return "LF";
+        case 1:
+        case -3:
+            return "RF";
+        default:
+            throw std::runtime_error("Given heading indices are invalid.");
+    }
+}
 
 }  // namespace mtrn4110
