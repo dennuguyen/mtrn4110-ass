@@ -266,7 +266,7 @@ auto PathPlanner::getAction(int a, int b) const -> std::string {
         case -3:
             return "RF";
         default:
-            throw std::runtime_error("Given heading indices are invalid.");
+            throw std::runtime_error("Invalid heading index.");
     }
 }
 
