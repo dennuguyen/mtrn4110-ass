@@ -259,7 +259,7 @@ auto PathPlanner::writePathPlan2txt(std::string const& pathPlanPath) const -> vo
     }
 }
 
-// a is predecessor of b.
+// Gets the heading when moving from point a to point b.
 auto PathPlanner::getHeadingIndex(std::pair<int, int> a, std::pair<int, int> b) const -> int {
     auto westEastHeading = a.first - b.first;      // W = 1, E = -1
     auto northSouthHeading = a.second - b.second;  // S = 1, N = -1
@@ -267,7 +267,7 @@ auto PathPlanner::getHeadingIndex(std::pair<int, int> a, std::pair<int, int> b) 
     return heading;
 }
 
-// a is predecessor of b.
+// Gets the required actions when given two headings.
 auto PathPlanner::getAction(int a, int b) const -> std::string {
     switch (a - b) {
         case 0:
