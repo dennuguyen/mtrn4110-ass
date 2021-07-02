@@ -57,7 +57,7 @@ PathPlanner::PathPlanner(PathPlanner&& pathPlanner) noexcept
       leastTurnsPath_(std::move(pathPlanner.leastTurnsPath_)),
       start_(std::move(pathPlanner.start_)),
       end_(std::move(pathPlanner.end_)),
-      heading_(std::move(pathPlanner.heading_)) {}
+      initialHeading_(std::move(pathPlanner.initialHeading_)) {}
 
 auto PathPlanner::readMapFile(std::string const& mapPath) -> void {
     auto mapFile = std::ifstream(mapPath.data());
@@ -100,19 +100,19 @@ auto PathPlanner::buildGraph() -> void {
                         end_ = {x, y};
                         break;
                     case '^':
-                        heading_ = 0;
+                        initialHeading_ = 0;
                         start_ = {x, y};
                         break;
                     case '>':
-                        heading_ = 1;
+                        initialHeading_ = 1;
                         start_ = {x, y};
                         break;
                     case 'v':
-                        heading_ = 2;
+                        initialHeading_ = 2;
                         start_ = {x, y};
                         break;
                     case '<':
-                        heading_ = 3;
+                        initialHeading_ = 3;
                         start_ = {x, y};
                         break;
                     default:
@@ -174,8 +174,8 @@ auto PathPlanner::searchPaths() noexcept -> void {
 
     auto pathStack = std::stack<std::tuple<std::pair<int, int>, std::vector<std::pair<int, int>>,
                                            std::string>>();  // [(point, path, pathPlan)]
-    auto pathPlan =
-        std::to_string(start_.first) + std::to_string(start_.second) + cardinalPoints[heading_];
+    auto pathPlan = std::to_string(start_.first) + std::to_string(start_.second) +
+                    cardinalPoints[initialHeading_];
     pathStack.push({start_, path, pathPlan});
 
     while (pathStack.empty() == false) {
@@ -204,7 +204,7 @@ auto PathPlanner::searchPaths() noexcept -> void {
                     if (newPath.size() > 2) {
                         newPathPlan += getAction(getHeadingIndex(a, b), getHeadingIndex(b, c));
                     } else {
-                        newPathPlan += getAction(getHeadingIndex(b, c), heading_);
+                        newPathPlan += getAction(getHeadingIndex(b, c), initialHeading_);
                     }
                 }
                 pathStack.push({adjacentPosition, newPath, newPathPlan});
@@ -259,7 +259,6 @@ auto PathPlanner::writePathPlan2txt(std::string const& pathPlanPath) const -> vo
     }
 }
 
-// Gets the heading when moving from point a to point b.
 auto PathPlanner::getHeadingIndex(std::pair<int, int> a, std::pair<int, int> b) const -> int {
     auto westEastHeading = a.first - b.first;      // W = 1, E = -1
     auto northSouthHeading = a.second - b.second;  // S = 1, N = -1
@@ -267,7 +266,6 @@ auto PathPlanner::getHeadingIndex(std::pair<int, int> a, std::pair<int, int> b) 
     return heading;
 }
 
-// Gets the required actions when given two headings.
 auto PathPlanner::getAction(int a, int b) const -> std::string {
     switch (a - b) {
         case 0:
