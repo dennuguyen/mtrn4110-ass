@@ -8,10 +8,12 @@ namespace mtrn4110 {
 
 class DrivePlan {
    public:
-    explicit DrivePlan(std::string const&);
-    explicit DrivePlan(DrivePlan const&) = delete;
-    DrivePlan(DrivePlan&&) noexcept;
+    explicit DrivePlan(std::string const &);
+    explicit DrivePlan(DrivePlan const &) = delete;
+    DrivePlan(DrivePlan &&) noexcept;
     ~DrivePlan();
+    auto operator=(DrivePlan const &) -> DrivePlan & = delete;
+    auto operator=(DrivePlan &&) -> DrivePlan & = delete;
     auto getMotionPlan() const noexcept -> std::string;
     auto nextSequence() noexcept -> char;
     auto getInitialLocalisation() const noexcept -> std::pair<int, int>;

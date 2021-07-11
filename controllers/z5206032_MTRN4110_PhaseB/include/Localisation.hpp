@@ -14,6 +14,8 @@ class Localisation {
     explicit Localisation(Localisation const &) = delete;
     Localisation(Localisation &&) noexcept;
     ~Localisation() = default;
+    auto operator=(Localisation const &) -> Localisation & = delete;
+    auto operator=(Localisation &&) -> Localisation & = delete;
     auto const getRow() const noexcept -> int;
     auto const getColumn() const noexcept -> int;
     auto const getHeading() const noexcept -> char;

@@ -18,6 +18,8 @@ class TaskControl {
     explicit TaskControl(TaskControl const &) = delete;
     TaskControl(TaskControl &&) noexcept;
     ~TaskControl() = default;
+    auto operator=(TaskControl const &) -> TaskControl & = delete;
+    auto operator=(TaskControl &&) -> TaskControl & = delete;
     auto tick() noexcept -> void;
     auto acquireLock() noexcept -> void;
     auto releaseLock() noexcept -> void;

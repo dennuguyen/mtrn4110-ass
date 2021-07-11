@@ -15,15 +15,20 @@ class PathPlanner {
     // PathPlanner object to exist after construction.
     explicit PathPlanner(std::string const &, std::string const &);
 
-    // As we plan the path in the constructor, we do not ever want to use the copy constructor to
-    // avoid multiple runtimes of path planning.
+    // Copy constructor.
     explicit PathPlanner(PathPlanner const &) = delete;
 
     // Move constructor.
-    PathPlanner(PathPlanner &&) noexcept;
+    explicit PathPlanner(PathPlanner &&) noexcept;
 
     // Default destructor.
     ~PathPlanner() = default;
+
+    // Copy assignment.
+    auto operator=(PathPlanner const &) -> PathPlanner & = delete;
+
+    // Move assignment.
+    auto operator=(PathPlanner &&) -> PathPlanner & = delete;
 
    private:
     // Reads a map from a file and stores it in map_.

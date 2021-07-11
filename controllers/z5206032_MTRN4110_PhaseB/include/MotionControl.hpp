@@ -18,6 +18,8 @@ class MotionControl {
     explicit MotionControl(MotionControl const &) = delete;
     MotionControl(MotionControl &&) noexcept;
     ~MotionControl() = default;
+    auto operator=(MotionControl const &) -> MotionControl & = delete;
+    auto operator=(MotionControl &&) -> MotionControl & = delete;
     auto tick(char) -> void;
     auto setGain(std::tuple<double, double, double>, std::tuple<double, double, double>) noexcept
         -> void;

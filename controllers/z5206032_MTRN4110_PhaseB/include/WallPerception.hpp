@@ -14,6 +14,8 @@ class WallPerception {
     explicit WallPerception(WallPerception const &) = delete;
     WallPerception(WallPerception &&) noexcept;
     ~WallPerception() = default;
+    auto operator=(WallPerception const &) -> WallPerception & = delete;
+    auto operator=(WallPerception &&) -> WallPerception & = delete;
     auto const getLeftWall() const noexcept -> char;
     auto const getFrontWall() const noexcept -> char;
     auto const getRightWall() const noexcept -> char;
