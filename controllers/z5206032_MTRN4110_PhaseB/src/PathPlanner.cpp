@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iterator>
+#include <ostream>
 #include <queue>
 #include <sstream>
 #include <stack>
@@ -12,14 +13,23 @@
 
 #include "Util.hpp"
 
+// Global output ensures buffers are written in the correct order. And I did not want to modify
+// function declarations to pass the stream around.
+static auto output = std::ofstream("../../Output.txt");
+
 namespace mtrn4110 {
 
 PathPlanner::PathPlanner(std::string const& mapPath, std::string const& pathPlanPath) {
     // Read map.
     print("Reading in map from " + mapPath + "...");
+    print(output, "Reading in map from " + mapPath + "...");
     readMapFile(mapPath);
-    std::for_each(map_.begin(), map_.end(), print);
+    std::for_each(map_.begin(), map_.end(), [](auto const& l) {
+        print(l);
+        print(output, l);
+    });
     print("Map read in!");
+    print(output, "Map read in!");
 
     // Build graph from map.
     buildGraph();
@@ -30,25 +40,34 @@ PathPlanner::PathPlanner(std::string const& mapPath, std::string const& pathPlan
     // Find all shortest paths in directed graph.
     searchPaths();
     print("Finding shortest paths...");
+    print(output, "Finding shortest paths...");
     for (auto i = 0; i < static_cast<int>(paths_.size()); i++) {
         print("Path - " + std::to_string(i + 1) + ":");
+        print(output, "Path - " + std::to_string(i + 1) + ":");
         auto const& path = paths_.at(i).first;
         printPath(path);
     }
     print(std::to_string(paths_.size()) + " shortest paths found!");
+    print(output, std::to_string(paths_.size()) + " shortest paths found!");
 
     // Find path with least number of turns from shortest paths.
     print("Finding shortest path with least turns...");
+    print(output, "Finding shortest path with least turns...");
     searchLeastTurnsPath();
     printPath(leastTurnsPath_->first);
     print("Shortest path with least turns found!");
+    print(output, "Shortest path with least turns found!");
     print("Path Plan (" + std::to_string(leastTurnsPath_->second.size() - 3) +
           " steps): " + leastTurnsPath_->second);
+    print(output, "Path Plan (" + std::to_string(leastTurnsPath_->second.size() - 3) +
+                      " steps): " + leastTurnsPath_->second);
 
     // Write out path plan.
     print("Writing path plan to " + pathPlanPath + "...");
+    print(output, "Writing path plan to " + pathPlanPath + "...");
     writePathPlan2txt(pathPlanPath);
     print("Path plan written to " + pathPlanPath + "!");
+    print(output, "Path plan written to " + pathPlanPath + "!");
 }
 
 PathPlanner::PathPlanner(PathPlanner&& pathPlanner) noexcept
@@ -180,10 +199,7 @@ auto PathPlanner::searchPaths() noexcept -> void {
     pathStack.push({start_, path, pathPlan});
 
     while (pathStack.empty() == false) {
-        auto const retval = pathStack.top();
-        auto const& currentPosition = std::get<0>(retval);
-        auto const& path = std::get<1>(retval);
-        auto const& pathPlan = std::get<2>(retval);
+        auto const [currentPosition, path, pathPlan] = pathStack.top();
         pathStack.pop();
 
         // Found the destination.
@@ -242,9 +258,10 @@ auto PathPlanner::printPath(std::vector<std::pair<int, int>> const& path) const 
     }
 
     // Print out map.
-    for (auto const& line : tempMap) {
-        print(line);
-    }
+    std::for_each(tempMap.begin(), tempMap.end(), [](auto const& l) {
+        print(l);
+        print(output, l);
+    });
 }
 
 auto PathPlanner::writePathPlan2txt(std::string const& pathPlanPath) const -> void {
