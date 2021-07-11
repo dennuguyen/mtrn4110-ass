@@ -10,11 +10,7 @@ namespace mtrn4110 {
 class Timer {
    public:
     explicit Timer(webots::Robot &);
-    explicit Timer(Timer const &) = delete;
-    explicit Timer(Timer &&) = delete;
     ~Timer() = default;
-    auto operator=(Timer const &) -> Timer & = delete;
-    auto operator=(Timer &&) -> Timer & = delete;
 
     auto time(double expiry) noexcept -> void;
     auto const expired() const noexcept -> bool;
