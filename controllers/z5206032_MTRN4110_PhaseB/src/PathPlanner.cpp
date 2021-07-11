@@ -18,6 +18,7 @@ PathPlanner::PathPlanner(std::string const& mapPath, std::string const& pathPlan
     // Read map.
     print("Reading in map from " + mapPath + "...");
     readMapFile(mapPath);
+    std::for_each(map_.begin(), map_.end(), print);
     print("Map read in!");
 
     // Build graph from map.
