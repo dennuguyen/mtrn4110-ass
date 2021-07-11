@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <fstream>
+#include <iostream>
 #include <iterator>
 #include <queue>
 #include <sstream>
@@ -174,7 +175,7 @@ auto PathPlanner::searchPaths() noexcept -> void {
 
     auto pathStack = std::stack<std::tuple<std::pair<int, int>, std::vector<std::pair<int, int>>,
                                            std::string>>();  // [(point, path, pathPlan)]
-    auto pathPlan = std::to_string(start_.first) + std::to_string(start_.second) +
+    auto pathPlan = std::to_string(start_.second) + std::to_string(start_.first) +
                     cardinalPoints[initialHeading_];
     pathStack.push({start_, path, pathPlan});
 
@@ -261,7 +262,7 @@ auto PathPlanner::writePathPlan2txt(std::string const& pathPlanPath) const -> vo
 
 auto PathPlanner::getHeadingIndex(std::pair<int, int> a, std::pair<int, int> b) const -> int {
     auto westEastHeading = a.first - b.first;      // W = 1, E = -1
-    auto northSouthHeading = a.second - b.second;  // S = 1, N = -1
+    auto northSouthHeading = b.second - a.second;  // S = 1, N = -1
     auto heading = northSouthHeading == 0 ? westEastHeading + 2 : northSouthHeading + 1;
     return heading;
 }
@@ -275,10 +276,10 @@ auto PathPlanner::getAction(int a, int b) const -> std::string {
             return "LL";
         case -1:
         case 3:
-            return "LF";
+            return "RF";
         case 1:
         case -3:
-            return "RF";
+            return "LF";
         default:
             throw std::runtime_error("Invalid heading index.");
     }

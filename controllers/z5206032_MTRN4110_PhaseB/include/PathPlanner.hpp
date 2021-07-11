@@ -56,7 +56,7 @@ class PathPlanner {
     // Gets the heading when moving from point a to point b.
     auto getHeadingIndex(std::pair<int, int>, std::pair<int, int>) const -> int;
 
-    // Gets the required actions when given two headings.
+    // Gets the required actions from b to a.
     auto getAction(int a, int b) const -> std::string;
 
    public:
