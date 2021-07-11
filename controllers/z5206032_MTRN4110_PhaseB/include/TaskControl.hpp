@@ -13,7 +13,7 @@
 
 namespace mtrn4110 {
 class TaskControl {
-  public:
+   public:
     explicit TaskControl(webots::Robot &);
     explicit TaskControl(TaskControl const &) = delete;
     TaskControl(TaskControl &&) noexcept;
@@ -28,25 +28,25 @@ class TaskControl {
     auto initcsv() const -> void;
     auto writeMessage2csv() const -> void;
 
-  private:
+   private:
     auto getMessage() const noexcept -> std::vector<std::pair<std::string, std::string>>;
 
-  public:
+   public:
     static constexpr auto csvPath = "../../MotionExecution.csv";
     static constexpr auto mapPath = "../../Map.txt";
     static constexpr auto pathPlanPath = "../../PathPlan.txt";
-    PathPlanner pathPlanner;       // Path planner.
-    DrivePlan drivePlan;           // Driving plan (can be replaced by autonomous driving).
-    MotionControl motionControl;   // Kinematic model.
-    Localisation localisation;     // Simple localisation using initial position
-                                   // and heading.
-    WallPerception wallPerception; // LIDAR sensor.
+    PathPlanner pathPlanner;        // Path planner.
+    DrivePlan drivePlan;            // Driving plan (can be replaced by autonomous driving).
+    MotionControl motionControl;    // Kinematic model.
+    Localisation localisation;      // Simple localisation using initial position
+                                    // and heading.
+    WallPerception wallPerception;  // LIDAR sensor.
 
-  private:
+   private:
     unsigned int step_ = 0;
     bool bigLock_ = false;
 };
 
-} // namespace mtrn4110
+}  // namespace mtrn4110
 
-#endif // TASK_CONTROL_HPP_
+#endif  // TASK_CONTROL_HPP_
