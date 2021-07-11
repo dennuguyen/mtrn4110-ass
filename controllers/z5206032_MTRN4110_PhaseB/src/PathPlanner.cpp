@@ -205,7 +205,7 @@ auto PathPlanner::searchPaths() noexcept -> void {
                     if (newPath.size() > 2) {
                         newPathPlan += getAction(getHeadingIndex(a, b), getHeadingIndex(b, c));
                     } else {
-                        newPathPlan += getAction(getHeadingIndex(b, c), initialHeading_);
+                        newPathPlan += getAction(initialHeading_, getHeadingIndex(b, c));
                     }
                 }
                 pathStack.push({adjacentPosition, newPath, newPathPlan});
