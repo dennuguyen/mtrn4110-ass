@@ -8,20 +8,17 @@
 namespace mtrn4110 {
 
 TaskControl::TaskControl(webots::Robot &robot)
-    : pathPlanner(PathPlanner(mapPath, pathPlanPath)),
-      drivePlan(DrivePlan(drivePlanPath)),
+    : pathPlanner(PathPlanner(mapPath, pathPlanPath)), drivePlan(DrivePlan(pathPlanPath)),
       motionControl(MotionControl(robot)),
       localisation(
           Localisation(robot, drivePlan.getInitialLocalisation(), drivePlan.getInitialHeading())),
       wallPerception(WallPerception(robot)) {}
 
 TaskControl::TaskControl(TaskControl &&taskControl) noexcept
-    : pathPlanner(std::move(taskControl.pathPlanner)),
-      drivePlan(std::move(taskControl.drivePlan)),
+    : pathPlanner(std::move(taskControl.pathPlanner)), drivePlan(std::move(taskControl.drivePlan)),
       motionControl(std::move(taskControl.motionControl)),
       localisation(std::move(taskControl.localisation)),
-      wallPerception(std::move(taskControl.wallPerception)),
-      step_(std::move(taskControl.step_)),
+      wallPerception(std::move(taskControl.wallPerception)), step_(std::move(taskControl.step_)),
       bigLock_(std::move(taskControl.bigLock_)) {}
 
 auto TaskControl::tick() noexcept -> void { step_++; }
@@ -96,4 +93,4 @@ auto TaskControl::getMessage() const noexcept -> std::vector<std::pair<std::stri
     return msg;
 }
 
-}  // namespace mtrn4110
+} // namespace mtrn4110
