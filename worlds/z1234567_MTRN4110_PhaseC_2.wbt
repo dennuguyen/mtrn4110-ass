@@ -3,8 +3,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation 1 0 0 4.71238898038469
-  position -5.744097159438401e-17 4.730352242619739 2.62587298717184e-16
+  orientation 0.051127925384525055 -0.7734063839888592 -0.6318453137051441 2.78734
+  position -1 2.8 -0.55
 }
 TexturedBackground {
 }
@@ -19,6 +19,35 @@ DEF MAZE Group {
     DEF cornerStone Solid {
       translation -0.7425 0.0325 -0.4125
       children [
+        DEF cornerMarker Transform {
+          translation 0 0.0325 0
+          children [
+            Shape {
+              appearance PBRAppearance {
+                baseColor 0.333333 1 1
+                metalness 0
+              }
+              geometry Cylinder {
+                height 0.001
+                radius 0.02
+              }
+            }
+          ]
+        }
+        DEF cornerMarkerInner Transform {
+          translation 0.01 0.033 0
+          children [
+            Shape {
+              appearance PBRAppearance {
+                metalness 0
+              }
+              geometry Cylinder {
+                height 0.001
+                radius 0.005
+              }
+            }
+          ]
+        }
         DEF cornerStone Shape {
           appearance PBRAppearance {
             baseColor 1 0 1
@@ -38,6 +67,35 @@ DEF MAZE Group {
     DEF cornerStone Solid {
       translation 0.7425 0.0325 -0.4125
       children [
+        DEF cornerMarker Transform {
+          translation 0 0.0325 0
+          children [
+            Shape {
+              appearance PBRAppearance {
+                baseColor 1 0 1
+                metalness 0
+              }
+              geometry Cylinder {
+                height 0.001
+                radius 0.02
+              }
+            }
+          ]
+        }
+        DEF cornerMarkerInner Transform {
+          translation 0 0.033 0.01
+          children [
+            Shape {
+              appearance PBRAppearance {
+                metalness 0
+              }
+              geometry Cylinder {
+                height 0.001
+                radius 0.005
+              }
+            }
+          ]
+        }
         DEF cornerStone Shape {
           appearance PBRAppearance {
             baseColor 1 0 1
@@ -57,6 +115,35 @@ DEF MAZE Group {
     DEF cornerStone Solid {
       translation 0.7425 0.0325 0.4125
       children [
+        DEF cornerMarker Transform {
+          translation 0 0.0325 0
+          children [
+            Shape {
+              appearance PBRAppearance {
+                baseColor 1 0 1
+                metalness 0
+              }
+              geometry Cylinder {
+                height 0.001
+                radius 0.02
+              }
+            }
+          ]
+        }
+        DEF cornerMarkerInner Transform {
+          translation -0.01 0.033 0
+          children [
+            Shape {
+              appearance PBRAppearance {
+                metalness 0
+              }
+              geometry Cylinder {
+                height 0.001
+                radius 0.005
+              }
+            }
+          ]
+        }
         DEF cornerStone Shape {
           appearance PBRAppearance {
             baseColor 1 0 1
@@ -76,6 +163,35 @@ DEF MAZE Group {
     DEF cornerStone Solid {
       translation -0.7425 0.0325 0.4125
       children [
+        DEF cornerMarker Transform {
+          translation 0 0.0325 0
+          children [
+            Shape {
+              appearance PBRAppearance {
+                baseColor 1 0 1
+                metalness 0
+              }
+              geometry Cylinder {
+                height 0.001
+                radius 0.02
+              }
+            }
+          ]
+        }
+        DEF cornerMarkerInner Transform {
+          translation 0 0.033 -0.01
+          children [
+            Shape {
+              appearance PBRAppearance {
+                metalness 0
+              }
+              geometry Cylinder {
+                height 0.001
+                radius 0.005
+              }
+            }
+          ]
+        }
         DEF cornerStone Shape {
           appearance PBRAppearance {
             baseColor 1 0 1
@@ -466,20 +582,85 @@ DEF MAZE Group {
     }
   ]
 }
-DEF z5206032 E-puck {
-  translation -0.66 0 -0.33
-  rotation 0 1 0 3.141592653589793
-  controller "z5206032_MTRN4110_PhaseB"
-  camera_width 320
-  camera_height 240
+DEF z1234567 E-puck {
+  translation 0.495 0 -0.33
+  rotation 0 1 0 1.5708
+  controller ""
   turretSlot [
-    Lidar {
-      fieldOfView 6.28
-      numberOfLayers 1
+    DEF Marker Solid {
+      translation 0 0.0001 -0.01
+      rotation 0 1 0 -0.7854003061004253
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColorMap ImageTexture {
+              url [
+                "marker1.png"
+              ]
+            }
+            roughness 1
+            metalness 0
+          }
+          geometry Plane {
+            size 0.02 0.02
+          }
+        }
+      ]
+      name "solid1"
+    }
+    DEF White Solid {
+      translation 0 0 -0.01
+      rotation 0 1 0 -0.7854003061004253
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColorMap ImageTexture {
+            }
+            roughness 1
+            metalness 0
+          }
+          geometry Plane {
+            size 0.025 0.025
+          }
+        }
+      ]
+      name "solid2"
     }
   ]
-  groundSensorsSlot [
-    InertialUnit {
+}
+DEF Target Transform {
+  translation -0.33 0.05 0
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColorMap ImageTexture {
+          url [
+            "ladybug.png"
+          ]
+        }
+        metalness 0
+      }
+      geometry Plane {
+        size 0.165 0.165
+      }
+    }
+  ]
+}
+DEF Target_Fake Transform {
+  translation 0.33 0.05 0.165
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColorMap ImageTexture {
+          url [
+            "ladybug_fake.png"
+          ]
+        }
+        metalness 0
+      }
+      geometry Plane {
+        size 0.165 0.165
+      }
     }
   ]
 }

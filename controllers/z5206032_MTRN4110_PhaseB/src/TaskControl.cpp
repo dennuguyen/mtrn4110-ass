@@ -9,7 +9,7 @@ namespace mtrn4110 {
 
 TaskControl::TaskControl(webots::Robot &robot)
     : pathPlanner(PathPlanner(mapPath, pathPlanPath)),
-      drivePlan(DrivePlan(drivePlanPath)),
+      drivePlan(DrivePlan(pathPlanPath)),
       motionControl(MotionControl(robot)),
       localisation(
           Localisation(robot, drivePlan.getInitialLocalisation(), drivePlan.getInitialHeading())),

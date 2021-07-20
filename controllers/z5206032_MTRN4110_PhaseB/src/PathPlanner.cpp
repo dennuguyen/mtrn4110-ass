@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iterator>
+#include <ostream>
 #include <queue>
 #include <sstream>
 #include <stack>
@@ -11,6 +12,10 @@
 #include <vector>
 
 #include "Util.hpp"
+
+// Global output ensures buffers are written in the correct order. And I did not want to modify
+// function declarations to pass the stream around.
+static auto output = std::ofstream("../../Output.txt");
 
 namespace mtrn4110 {
 
@@ -163,10 +168,7 @@ auto PathPlanner::searchPaths() noexcept -> void {
     pathStack.push({start_, path, pathPlan});
 
     while (pathStack.empty() == false) {
-        auto const retval = pathStack.top();
-        auto const& currentPosition = std::get<0>(retval);
-        auto const& path = std::get<1>(retval);
-        auto const& pathPlan = std::get<2>(retval);
+        auto const [currentPosition, path, pathPlan] = pathStack.top();
         pathStack.pop();
 
         // Found the destination.
@@ -225,9 +227,10 @@ auto PathPlanner::printPath(std::vector<std::pair<int, int>> const& path) const 
     }
 
     // Print out map.
-    for (auto const& line : tempMap) {
-        print(line);
-    }
+    std::for_each(tempMap.begin(), tempMap.end(), [](auto const& l) {
+        print(l);
+        print(output, l);
+    });
 }
 
 auto PathPlanner::writePathPlan2txt(std::string const& pathPlanPath) const -> void {

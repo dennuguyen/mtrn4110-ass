@@ -43,7 +43,7 @@ CXX_SOURCES = $(wildcard src/*.cpp) z5206032_MTRN4110_PhaseB.cpp
 ###
 ### ---- Compilation options ----
 ### if special compilation flags are necessary:
-CFLAGS = -Wall
+CFLAGS = -std=c++20 -Wall
 ###
 ### ---- Linked libraries ----
 ### if your program needs additional libraries:

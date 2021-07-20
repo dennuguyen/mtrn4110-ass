@@ -32,7 +32,6 @@ class TaskControl {
     auto getMessage() const noexcept -> std::vector<std::pair<std::string, std::string>>;
 
    public:
-    static constexpr auto drivePlanPath = "../../MotionPlan.txt";
     static constexpr auto csvPath = "../../MotionExecution.csv";
     static constexpr auto mapPath = "../../Map.txt";
     static constexpr auto pathPlanPath = "../../PathPlan.txt";
