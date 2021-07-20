@@ -5,7 +5,7 @@
 
 namespace mtrn4110 {
 
-auto print(std::ostream& os, std::string const& t) -> void;
+auto print(std::ostream& os, std::string const& t) -> std::ostream&;
 auto print(std::string const&) -> void;
 
 }  // namespace mtrn4110
