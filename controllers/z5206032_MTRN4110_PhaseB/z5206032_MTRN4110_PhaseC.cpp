@@ -43,8 +43,8 @@ static auto realtimeSteps(mtrn4110::TaskControl &taskControl, mtrn4110::Timer &t
         if (timer.expired() == true) {
             taskControl.localisation.tick(instr);
             taskControl.wallPerception.tick();
-            taskControl.displayMessage();
-            taskControl.writeMessage2csv();
+            // taskControl.displayMessage();
+            // taskControl.writeMessage2csv();
 
             // Ready to perform another action.
             taskControl.releaseLock();
