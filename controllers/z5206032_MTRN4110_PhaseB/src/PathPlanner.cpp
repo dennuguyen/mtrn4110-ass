@@ -16,9 +16,7 @@ namespace mtrn4110 {
 
 PathPlanner::PathPlanner(std::string const& mapPath, std::string const& pathPlanPath) {
     // Read map.
-    print("Reading in map from " + mapPath + "...");
     readMapFile(mapPath);
-    print("Map read in!");
 
     // Build graph from map.
     buildGraph();
@@ -28,26 +26,12 @@ PathPlanner::PathPlanner(std::string const& mapPath, std::string const& pathPlan
 
     // Find all shortest paths in directed graph.
     searchPaths();
-    print("Finding shortest paths...");
-    for (auto i = 0; i < static_cast<int>(paths_.size()); i++) {
-        print("Path - " + std::to_string(i + 1) + ":");
-        auto const& path = paths_.at(i).first;
-        printPath(path);
-    }
-    print(std::to_string(paths_.size()) + " shortest paths found!");
 
     // Find path with least number of turns from shortest paths.
-    print("Finding shortest path with least turns...");
     searchLeastTurnsPath();
-    printPath(leastTurnsPath_->first);
-    print("Shortest path with least turns found!");
-    print("Path Plan (" + std::to_string(leastTurnsPath_->second.size() - 3) +
-          " steps): " + leastTurnsPath_->second);
 
     // Write out path plan.
-    print("Writing path plan to " + pathPlanPath + "...");
     writePathPlan2txt(pathPlanPath);
-    print("Path plan written to " + pathPlanPath + "!");
 }
 
 PathPlanner::PathPlanner(PathPlanner&& pathPlanner) noexcept
